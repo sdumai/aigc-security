@@ -113,7 +113,7 @@ app.post("/api/detect/volc-ims", async (req, res) => {
     const response = await volcImageChat(imageInput, VOLC_SAFE_PROMPT);
     const data = await response.json();
     if (data.error) {
-      return sendErr(data.error.message || data.error.code || "火山方舟接口错误");
+      return sendErr(data.error.message || data.error.code || "接口错误");
     }
     const text = data.choices?.[0]?.message?.content?.trim() || "";
     let parsed = { safe: true, suggestion: "pass", labels: [], reason: "" };
@@ -124,7 +124,7 @@ app.post("/api/detect/volc-ims", async (req, res) => {
     res.json(parsed);
   } catch (err) {
     console.error("Volc IMS error:", err);
-    sendErr(err && err.message ? err.message : "请求火山方舟失败");
+    sendErr(err && err.message ? err.message : "请求失败");
   }
 });
 
@@ -175,7 +175,7 @@ app.post("/api/detect/volc-video-ims", async (req, res) => {
     });
     const data = await response.json();
     if (data.error) {
-      return sendErr(data.error.message || data.error.code || "火山方舟接口错误");
+      return sendErr(data.error.message || data.error.code || "接口错误");
     }
     const text = data.choices?.[0]?.message?.content?.trim() || "";
     let parsed = { safe: true, suggestion: "pass", labels: [], reason: "" };
@@ -416,7 +416,7 @@ app.post("/api/generate/faceswap", async (req, res) => {
     }
     res.json({
       imageUrl: `data:image/jpeg;base64,${resultImageBase64}`,
-      message: "人脸替换完成（火山引擎人像融合）",
+      message: "人脸替换完成",
     });
   } catch (err) {
     console.error("Volc FaceSwap error:", err);

@@ -300,7 +300,15 @@ const DeepfakeGeneratePage = () => {
               <Form.Item
                 label="上传目标人脸图片"
                 name="target"
-                tooltip="被换脸的那张图（目标图），该图中的人脸将被替换为驱动人脸"
+                tooltip={{
+                  title:
+                    functionType === "faceswap"
+                      ? "人脸替换的目标载体图像：保留该图的姿态与场景，仅对其人脸区域进行替换"
+                      : functionType === "fomm"
+                        ? "用于生成人脸动画的源人脸图像：该图中的人脸将按动作描述生成驱动短视频"
+                        : "待编辑的人脸图像：将根据编辑指令对该图的人脸属性进行修改，保持身份一致",
+                  placement: "right",
+                }}
               >
                 <Upload
                   accept="image/jpeg,image/png,image/jpg"
@@ -336,7 +344,14 @@ const DeepfakeGeneratePage = () => {
               </Form.Item>
 
               {functionType === "faceswap" && (
-                <Form.Item label="上传驱动人脸" name="source" tooltip="用于替换的源人脸图片">
+                <Form.Item
+                  label="上传驱动人脸"
+                  name="source"
+                  tooltip={{
+                    title: "提供替换人脸的源图像：其人脸身份与外观将迁移并融合至目标图的人脸区域",
+                    placement: "right",
+                  }}
+                >
                   <Upload
                     accept="image/jpeg,image/png,image/jpg"
                     listType="picture-card"
@@ -375,7 +390,10 @@ const DeepfakeGeneratePage = () => {
                 <Form.Item
                   label="动作描述"
                   name="fommPrompt"
-                  tooltip="描述希望人脸做的动作，如：微笑、点头、说话。留空则使用默认自然微动"
+                  tooltip={{
+                    title: "描述希望人脸做的动作，如：微笑、点头、说话。留空则使用默认自然微动",
+                    placement: "right",
+                  }}
                 >
                   <TextArea rows={2} placeholder="让图中人脸做自然的微笑和轻微点头动作" maxLength={300} showCount />
                 </Form.Item>
@@ -387,9 +405,12 @@ const DeepfakeGeneratePage = () => {
                     label="编辑指令"
                     name="editPrompt"
                     rules={[{ required: true, message: "请输入编辑指令" }]}
-                    tooltip="用自然语言描述要对图片做的修改，如：把头发改成红色、加一副眼镜、换成微笑表情"
+                    tooltip={{
+                      title: "用自然语言描述要对图片做的修改，如：把头发改成红色、加一副眼镜、换成微笑表情",
+                      placement: "right",
+                    }}
                   >
-                    <TextArea rows={3} placeholder="例如：把头发改成黑色，保持人脸不变" maxLength={500} showCount />
+                    <TextArea rows={3} placeholder="把头发改成黑色，保持人脸不变" maxLength={500} showCount />
                   </Form.Item>
                 </>
               )}
