@@ -19,6 +19,7 @@ if [ ! -d "dist" ]; then
 fi
 
 echo "✅ 找到 dist 目录"
+echo "⚠️  若曾报「设备上没有空间」，请先登录服务器清理磁盘: ssh $REMOTE_USER@$REMOTE_HOST 'df -h ~'"
 
 # 2. 测试服务器连接
 echo "📡 测试服务器连接..."

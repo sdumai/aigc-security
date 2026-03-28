@@ -1,0 +1,77 @@
+#!/usr/bin/expect -f
+# 后端独立部署脚本（与前端部署脚本 快速部署.sh / deploy-final.exp 完全独立，互不影响）
+# 将 server 与依赖部署到同一台服务器，监听 3001 端口
+
+set timeout 120
+set remote_host "10.102.32.144"
+set remote_user "lab426"
+set remote_pass "426"
+set backend_dir "aigc-security-backend"
+
+puts "🚀 开始部署后端到 ${remote_host}:3001 ..."
+
+# 1. 创建远程目录
+puts "📁 创建远程目录..."
+spawn ssh -o StrictHostKeyChecking=no ${remote_user}@${remote_host} "mkdir -p ~/${backend_dir}"
+expect {
+    "password:" {
+        send "${remote_pass}\r"
+        exp_continue
+    }
+    eof
+}
+
+# 2. 上传 server 目录、package.json、package-lock.json
+puts "📦 上传后端代码与依赖配置..."
+spawn bash -c "tar czf - server package.json package-lock.json 2>/dev/null | ssh -o StrictHostKeyChecking=no ${remote_user}@${remote_host} 'cd ~/${backend_dir} && tar xzf -'"
+expect {
+    "password:" {
+        send "${remote_pass}\r"
+        exp_continue
+    }
+    eof
+}
+
+# 3. 上传 .env.local（若存在）
+puts "📄 检查并上传 .env.local ..."
+spawn bash -c "test -f .env.local && tar czf - .env.local | ssh -o StrictHostKeyChecking=no ${remote_user}@${remote_host} 'cd ~/${backend_dir} && tar xzf -' || true"
+expect {
+    "password:" {
+        send "${remote_pass}\r"
+        exp_continue
+    }
+    eof
+}
+
+# 4. SSH 登录并安装依赖、启动服务（单次发送整段命令，避免 expect 匹配提示符卡住）
+puts "🔧 安装依赖并启动后端服务..."
+spawn ssh -o StrictHostKeyChecking=no ${remote_user}@${remote_host}
+expect {
+    "password:" {
+        send "${remote_pass}\r"
+    }
+}
+
+# 等待首次 shell 提示（兼容 user@host:path$ 或 $ 等格式），最多等 15 秒
+set timeout 15
+expect {
+    -re {\r\n\[^\r\n\]*\$ ?} { }
+    timeout { puts "\n  (未检测到标准提示符，继续执行)" }
+}
+set timeout 90
+
+# 一次性执行：cd、npm install、重启 tmux、启动 node
+send "cd ~/${backend_dir} && npm install --omit=dev && tmux kill-session -t aigc-security-backend 2>/dev/null || true && DETECT_PROXY_PORT=3001 tmux new-session -d -s aigc-security-backend 'node server/index.cjs' && echo DEPLOY_BACKEND_OK\r"
+
+# 等待命令执行结束（以 DEPLOY_BACKEND_OK 或超时为准）
+expect {
+    "DEPLOY_BACKEND_OK" { puts "\n  (后端已启动)" }
+    timeout { puts "\n  ⚠️ 超时，请登录服务器检查: ssh ${remote_user}@${remote_host} 'tmux attach -t aigc-security-backend'" }
+}
+send "exit\r"
+expect eof
+
+puts "\n✅ 后端部署完成！"
+puts "🌐 API 地址: http://${remote_host}:3001/api"
+puts "📋 查看服务: ssh -t ${remote_user}@${remote_host} 'tmux attach -t aigc-security-backend'"
+puts "📋 停止服务: ssh ${remote_user}@${remote_host} 'tmux kill-session -t aigc-security-backend'"

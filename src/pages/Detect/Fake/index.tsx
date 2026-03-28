@@ -16,7 +16,6 @@ import {
   Input,
   Tabs,
   Checkbox,
-  Tooltip,
 } from "antd";
 import {
   UploadOutlined,
@@ -24,10 +23,10 @@ import {
   CloseCircleOutlined,
   ScanOutlined,
   LinkOutlined,
-  WarningOutlined,
   EyeOutlined,
 } from "@ant-design/icons";
 import type { UploadFile, UploadProps } from "antd";
+import { apiBase } from "@/utils/apiBase";
 
 const { Title, Paragraph, Text } = Typography;
 const { Dragger } = Upload;
@@ -75,7 +74,7 @@ const FakeDetectPage = () => {
   const [videoUploadFileName, setVideoUploadFileName] = useState<string>("");
   const [videoPreviewUrl, setVideoPreviewUrl] = useState<string>("");
   const [activeTab, setActiveTab] = useState<string>("upload");
-  const [videoInputTab, setVideoInputTab] = useState<"url" | "upload">("url");
+  const [videoInputTab, setVideoInputTab] = useState<"url" | "upload">("upload");
   const [selectedModels, setSelectedModels] = useState<string[]>(["XceptionNet"]);
   const [currentStep, setCurrentStep] = useState<number>(1);
 
@@ -195,7 +194,7 @@ const FakeDetectPage = () => {
         return;
       }
 
-      const res = await fetch("/api/detect/volc-video-aigc", {
+      const res = await fetch(`${apiBase}/api/detect/volc-video-aigc`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
@@ -274,7 +273,7 @@ const FakeDetectPage = () => {
         setLoading(false);
         return;
       }
-      const res = await fetch("/api/detect/volc-image-aigc", {
+      const res = await fetch(`${apiBase}/api/detect/volc-image-aigc`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
@@ -902,18 +901,36 @@ const FakeDetectPage = () => {
                       strokeColor={result.isFake ? "#ff4d4f" : "#52c41a"}
                     />
                     {result.details.segmentConclusion && (
-                      <Paragraph type="secondary" style={{ marginTop: 8, marginBottom: 0, fontSize: 13 }}>
+                      <Paragraph
+                        type="secondary"
+                        style={{
+                          marginTop: 8,
+                          marginBottom: 0,
+                          fontSize: 13,
+                          wordBreak: "break-word",
+                          overflowWrap: "break-word",
+                        }}
+                      >
                         {result.details.segmentConclusion}
                       </Paragraph>
                     )}
                   </div>
 
                   {result.details.artifacts && result.details.artifacts.length > 0 && (
-                    <div>
+                    <div style={{ wordBreak: "break-word", overflowWrap: "break-word" }}>
                       <Text strong>检测到的异常特征</Text>
                       <div style={{ marginTop: 8 }}>
                         {result.details.artifacts.map((artifact, index) => (
-                          <Tag color="red" key={index} style={{ marginBottom: 8 }}>
+                          <Tag
+                            color="red"
+                            key={index}
+                            style={{
+                              marginBottom: 8,
+                              maxWidth: "100%",
+                              whiteSpace: "normal",
+                              wordBreak: "break-word",
+                            }}
+                          >
                             {artifact}
                           </Tag>
                         ))}

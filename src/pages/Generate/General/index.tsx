@@ -27,6 +27,7 @@ import {
 } from "@ant-design/icons";
 import type { UploadFile } from "antd";
 import request from "@/utils/request";
+import { apiBase } from "@/utils/apiBase";
 
 const { Title, Paragraph } = Typography;
 const { TextArea } = Input;
@@ -54,7 +55,7 @@ const GeneralGeneratePage = () => {
       const values = await imageForm.validateFields();
       setImageLoading(true);
       setImageResult(null);
-      const res = await fetch("/api/generate/image", {
+      const res = await fetch(`${apiBase}/api/generate/image`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -160,7 +161,7 @@ const GeneralGeneratePage = () => {
             </div>
           ) : imageResult ? (
             <div>
-              <Image src={imageResult.imageUrl} alt="生成的图像" style={{ width: "100%", borderRadius: 8 }} />
+              <Image src={imageResult.imageUrl} alt="生成的图像" style={{ width: "80%", borderRadius: 8 }} />
               <Space style={{ marginTop: 16, width: "100%" }} direction="vertical">
                 <Button type="primary" block icon={<DownloadOutlined />} onClick={handleDownloadImage}>
                   下载到本地
@@ -201,7 +202,7 @@ const GeneralGeneratePage = () => {
       const values = await videoForm.validateFields();
       setVideoLoading(true);
       setVideoResult(null);
-      const res = await fetch("/api/generate/t2v", {
+      const res = await fetch(`${apiBase}/api/generate/t2v`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -396,7 +397,7 @@ const GeneralGeneratePage = () => {
       }
 
       const values = i2vForm.getFieldsValue();
-      const res = await fetch("/api/generate/i2v", {
+      const res = await fetch(`${apiBase}/api/generate/i2v`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

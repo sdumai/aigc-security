@@ -1,8 +1,9 @@
 import axios from 'axios'
 import { message } from 'antd'
+import { apiBase } from './apiBase'
 
 const request = axios.create({
-  baseURL: '/api',
+  baseURL: apiBase ? `${apiBase}/api` : '/api',
   timeout: 30000,
 })
 

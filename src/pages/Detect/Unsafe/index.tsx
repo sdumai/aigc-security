@@ -18,6 +18,7 @@ import {
   Tabs,
   Checkbox,
 } from "antd";
+import { apiBase } from "@/utils/apiBase";
 import {
   UploadOutlined,
   WarningOutlined,
@@ -224,7 +225,7 @@ const UnsafeDetectPage = () => {
         } else {
           body.videoUrl = videoUploadedUrl;
         }
-        const res = await fetch("/api/detect/volc-video-ims", {
+        const res = await fetch(`${apiBase}/api/detect/volc-video-ims`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(body),
@@ -291,7 +292,7 @@ const UnsafeDetectPage = () => {
           return;
         }
       }
-      const res = await fetch("/api/detect/volc-ims", {
+      const res = await fetch(`${apiBase}/api/detect/volc-ims`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
