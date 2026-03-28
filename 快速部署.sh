@@ -12,13 +12,24 @@ REMOTE_PASS="426"
 REMOTE_DIR="aigc-security-platform"
 REMOTE_PORT="5670"
 
-# 1. 检查 dist 目录是否存在
-if [ ! -d "dist" ]; then
-    echo "❌ dist 目录不存在，请先运行 npm run build"
+# 1. 生产构建（会读取 .env.production 中的 VITE_*）
+if [ ! -f "package.json" ]; then
+    echo "❌ 请在项目根目录执行（缺少 package.json）"
     exit 1
 fi
 
-echo "✅ 找到 dist 目录"
+echo "📦 正在执行 npm run build ..."
+if ! npm run build; then
+    echo "❌ 构建失败，已中止部署"
+    exit 1
+fi
+
+if [ ! -d "dist" ]; then
+    echo "❌ 构建后未生成 dist 目录"
+    exit 1
+fi
+
+echo "✅ 构建完成，已生成 dist"
 echo "⚠️  若曾报「设备上没有空间」，请先登录服务器清理磁盘: ssh $REMOTE_USER@$REMOTE_HOST 'df -h ~'"
 
 # 2. 测试服务器连接
