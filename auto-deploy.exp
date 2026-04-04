@@ -9,7 +9,7 @@ set local_path "/Users/shixu.mai/Desktop/aigc-security"
 puts "====================================="
 puts "开始部署 AIGC Security 项目"
 puts "目标服务器: $server_host"
-puts "访问地址: http://10.102.32.144:5670"
+puts "访问地址: http://10.102.32.144:53177"
 puts "====================================="
 
 # 步骤 1: 传输文件
@@ -89,7 +89,7 @@ expect "$ " {
 }
 
 expect "$ " {
-    send "if lsof -ti:5670 > /dev/null; then echo '✅ 服务已成功启动'; else echo '❌ 服务启动失败'; fi\r"
+    send "if lsof -ti:53177 > /dev/null; then echo '✅ 服务已成功启动'; else echo '❌ 服务启动失败'; fi\r"
 }
 
 expect "$ " {
@@ -100,7 +100,7 @@ expect eof
 
 puts "\n====================================="
 puts "✅ 部署完成！"
-puts "访问地址: http://10.102.32.144:5670"
+puts "访问地址: http://10.102.32.144:53177"
 puts "====================================="
 
 

@@ -2,6 +2,7 @@
  * 检测与生成代理：密钥仅存服务端
  * 火山方舟：VOLC_ARK_API_KEY、VOLC_ARK_VISION_MODEL（图片/视频理解、AI 生成检测、敏感检测）
  * 火山人像融合：VOLC_ACCESS_KEY、VOLC_SECRET_KEY
+ * 自托管文生图：STABLE_DIFFUSION_SERVICE_URL 或 SD_SERVICE_URL（默认 http://127.0.0.1:8009）→ /api/generate/image-stable-diffusion
  * 启动：node server/index.cjs
  */
 require("dotenv").config({ path: ".env.local" });
@@ -97,10 +98,7 @@ app.post("/api/detect/volc-image-aigc", async (req, res) => {
  * 成功/失败均尽量原样返回上游 JSON（与直接请求 /detect 一致）。
  * 环境变量 UNIVERSAL_FAKE_DETECT_URL 默认 http://127.0.0.1:8008（勿带尾斜杠）
  */
-const UNIVERSAL_FAKE_DETECT_URL = (process.env.UNIVERSAL_FAKE_DETECT_URL || "http://127.0.0.1:8008").replace(
-  /\/$/,
-  "",
-);
+const UNIVERSAL_FAKE_DETECT_URL = (process.env.UNIVERSAL_FAKE_DETECT_URL || "http://127.0.0.1:8008").replace(/\/$/, "");
 
 app.post("/api/detect/universal-fake-detect", async (req, res) => {
   const sendErr = (status, msg) => res.status(status).json({ error: msg });
@@ -514,6 +512,13 @@ const VOLC_ARK_T2V_MODEL = (
   "doubao-seedance-1-0-lite-t2v-250428"
 ).trim();
 
+/** 自托管 Stable Diffusion（FastAPI，默认 POST /api/sd/generate，返回 imageUrl 多为 data:image/...;base64,...） */
+const STABLE_DIFFUSION_SERVICE_URL = (
+  process.env.STABLE_DIFFUSION_SERVICE_URL ||
+  process.env.SD_SERVICE_URL ||
+  "http://127.0.0.1:8009"
+).replace(/\/$/, "");
+
 /** 轮询方舟视频任务直至完成，返回 videoUrl 或 null（失败/超时由调用方 sendErr） */
 async function pollArkVideoTask(taskId) {
   const maxAttempts = 120;
@@ -787,6 +792,67 @@ app.post("/api/generate/image", async (req, res) => {
   }
 });
 
+/**
+ * 文生图（Stable Diffusion 自托管）：代理到本机/内网 uvicorn（如 :8009）。
+ * 上游返回 { imageUrl, message }，imageUrl 一般为 data URL；统一原样转给前端。
+ */
+app.post("/api/generate/image-stable-diffusion", async (req, res) => {
+  const sendErr = (msg) => res.status(500).json({ error: msg });
+  try {
+    const { prompt, size, watermark } = req.body || {};
+    const promptText = typeof prompt === "string" ? prompt.trim() : "";
+    if (!promptText) {
+      return res.status(400).json({ error: "需要 prompt（提示词）" });
+    }
+    const sdRes = await fetch(`${STABLE_DIFFUSION_SERVICE_URL}/api/sd/generate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        prompt: promptText,
+        size: size || "2K",
+        watermark: !!watermark,
+      }),
+    });
+    const text = await sdRes.text();
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      return sendErr(text.slice(0, 200) || `SD 服务返回非 JSON（${sdRes.status}）`);
+    }
+    if (!sdRes.ok) {
+      const d = data.detail;
+      const msg =
+        typeof d === "string"
+          ? d
+          : Array.isArray(d)
+            ? d.map((x) => x?.msg || String(x)).join("；")
+            : data.error || `SD 服务错误 ${sdRes.status}`;
+      return sendErr(msg || "Stable Diffusion 请求失败");
+    }
+    const imageUrl = data.imageUrl;
+    if (!imageUrl || typeof imageUrl !== "string") {
+      return sendErr("SD 未返回 imageUrl");
+    }
+    let normalized = imageUrl.trim();
+    if (!normalized.startsWith("http") && !normalized.startsWith("data:")) {
+      normalized = `data:image/png;base64,${normalized}`;
+    }
+    res.json({
+      imageUrl: normalized,
+      message: data.message || "图像生成成功！",
+      format: normalized.startsWith("data:") ? "data_url" : "url",
+    });
+  } catch (err) {
+    console.error("Stable Diffusion proxy error:", err);
+    sendErr(
+      err && err.message
+        ? err.message
+        : "无法连接 Stable Diffusion 服务，请确认已启动（STABLE_DIFFUSION_SERVICE_URL / 默认 127.0.0.1:8009）",
+    );
+  }
+});
+
 /** 文生视频：创建任务后轮询 */
 app.post("/api/generate/t2v", async (req, res) => {
   const sendErr = (msg) => res.status(500).json({ error: msg });
@@ -897,6 +963,9 @@ app.listen(PORT, () => {
     console.log(`Volc SeedEdit(属性编辑): http://localhost:${PORT}/api/generate/seededit`);
     console.log(`人脸动画(I2V): http://localhost:${PORT}/api/generate/fomm`);
     console.log(`文生图: http://localhost:${PORT}/api/generate/image`);
+    console.log(
+      `文生图(SD 代理→${STABLE_DIFFUSION_SERVICE_URL}): http://localhost:${PORT}/api/generate/image-stable-diffusion`,
+    );
     console.log(`文生视频: http://localhost:${PORT}/api/generate/t2v`);
     console.log(`图生视频: http://localhost:${PORT}/api/generate/i2v`);
   }

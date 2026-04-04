@@ -63,7 +63,7 @@ expect "$ "
 send "sleep 5\r"
 
 expect "$ "
-send "if lsof -ti:5670 > /dev/null 2>&1; then echo '✅ 服务已成功启动在端口 5670'; else echo '❌ 服务启动失败，查看日志'; fi\r"
+send "if lsof -ti:53177 > /dev/null 2>&1; then echo '✅ 服务已成功启动在端口 53177'; else echo '❌ 服务启动失败，查看日志'; fi\r"
 
 expect "$ "
 send "tail -5 app.log\r"
@@ -75,7 +75,7 @@ expect eof
 
 puts "\n====================================="
 puts "✅ 部署完成！"
-puts "访问地址: http://10.102.32.144:5670"
+puts "访问地址: http://10.102.32.144:53177"
 puts "====================================="
 
 

@@ -35,6 +35,22 @@ const { TextArea } = Input;
 interface ImageResult {
   imageUrl: string;
   message: string;
+  /** 火山为 http(s) URL；本地 SD 多为 data:image/...;base64,... */
+  format: "url" | "data_url";
+}
+
+const IMAGE_MODEL_OPTIONS = [
+  { value: "volc", label: "火山引擎（方舟）", endpoint: "/api/generate/image" },
+  { value: "stable-diffusion", label: "Stable Diffusion", endpoint: "/api/generate/image-stable-diffusion" },
+] as const;
+
+function dataUrlToBlob(dataUrl: string): Blob {
+  const m = dataUrl.match(/^data:([^;]+);base64,([\s\S]+)$/);
+  if (!m) throw new Error("无效的 data URL");
+  const binary = atob(m[2].replace(/\s/g, ""));
+  const arr = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) arr[i] = binary.charCodeAt(i);
+  return new Blob([arr], { type: m[1] || "image/png" });
 }
 
 interface VideoResult {
@@ -47,6 +63,7 @@ const GeneralGeneratePage = () => {
 
   // ---------- 文生图 ----------
   const [imageForm] = Form.useForm();
+  const imageModel = Form.useWatch("imageModel", imageForm);
   const [imageLoading, setImageLoading] = useState(false);
   const [imageResult, setImageResult] = useState<ImageResult | null>(null);
 
@@ -55,7 +72,10 @@ const GeneralGeneratePage = () => {
       const values = await imageForm.validateFields();
       setImageLoading(true);
       setImageResult(null);
-      const res = await fetch(`${apiBase}/api/generate/image`, {
+      const model = values.imageModel as string;
+      const opt = IMAGE_MODEL_OPTIONS.find((o) => o.value === model);
+      const endpoint = opt?.endpoint ?? "/api/generate/image";
+      const res = await fetch(`${apiBase}${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -66,7 +86,20 @@ const GeneralGeneratePage = () => {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "请求失败");
-      setImageResult({ imageUrl: data.imageUrl, message: data.message || "图像生成成功！" });
+      const rawUrl = typeof data.imageUrl === "string" ? data.imageUrl.trim() : "";
+      if (!rawUrl) throw new Error("未返回图片数据");
+      const isData =
+        rawUrl.startsWith("data:") ||
+        data.format === "data_url" ||
+        (!rawUrl.startsWith("http://") && !rawUrl.startsWith("https://"));
+      const imageUrl = isData && !rawUrl.startsWith("data:") ? `data:image/png;base64,${rawUrl}` : rawUrl;
+      const format: "url" | "data_url" =
+        imageUrl.startsWith("data:") || data.format === "data_url" ? "data_url" : "url";
+      setImageResult({
+        imageUrl,
+        message: data.message || "图像生成成功！",
+        format,
+      });
       message.success("图像生成成功！");
     } catch (error) {
       message.error(error instanceof Error ? error.message : "生成失败，请重试");
@@ -77,14 +110,20 @@ const GeneralGeneratePage = () => {
 
   const handleDownloadImage = async () => {
     if (!imageResult?.imageUrl) return;
+    const ext = imageResult.format === "data_url" ? "png" : "jpg";
     try {
       message.loading("正在下载图像...", 0);
-      const response = await fetch(imageResult.imageUrl);
-      const blob = await response.blob();
+      let blob: Blob;
+      if (imageResult.imageUrl.startsWith("data:")) {
+        blob = dataUrlToBlob(imageResult.imageUrl);
+      } else {
+        const response = await fetch(imageResult.imageUrl);
+        blob = await response.blob();
+      }
       const blobUrl = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = blobUrl;
-      link.download = `ai-generated-image-${Date.now()}.jpg`;
+      link.download = `ai-generated-image-${Date.now()}.${ext}`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -118,7 +157,26 @@ const GeneralGeneratePage = () => {
     <Row gutter={24}>
       <Col xs={24} lg={12}>
         <Card title="文生图参数" bordered={false}>
-          <Form form={imageForm} layout="vertical" initialValues={{ size: "2K", watermark: true }}>
+          <Form form={imageForm} layout="vertical" initialValues={{ imageModel: "volc", size: "2K", watermark: true }}>
+            <Form.Item
+              label="生成模型"
+              name="imageModel"
+              tooltip="火山返回图片 URL；自托管 SD 返回 base64（data URL），由前端统一展示"
+              rules={[{ required: true, message: "请选择模型" }]}
+            >
+              <Select>
+                {IMAGE_MODEL_OPTIONS.map((o) => (
+                  <Select.Option key={o.value} value={o.value}>
+                    {o.label}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Form.Item>
+            {imageModel === "stable-diffusion" && (
+              <Paragraph type="secondary" style={{ marginTop: -8, marginBottom: 8 }}>
+                自托管服务由后端代理至 STABLE_DIFFUSION_SERVICE_URL（默认 8009）；水印开关仅对火山文生图生效。
+              </Paragraph>
+            )}
             <Form.Item label="提示词（Prompt）" name="prompt" rules={[{ required: true, message: "请输入提示词" }]}>
               <TextArea rows={4} placeholder="请输入提示词：悲伤的小狗" showCount maxLength={500} />
             </Form.Item>

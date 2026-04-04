@@ -43,7 +43,7 @@ expect "$ " {
 }
 
 expect "$ " {
-    send "tmux send-keys -t aigc-security 'npx -y http-server . -p 5670 -a 0.0.0.0' C-m\r"
+    send "tmux send-keys -t aigc-security 'npx -y http-server . -p 53177 -a 0.0.0.0' C-m\r"
 }
 
 expect "$ " {
@@ -59,7 +59,7 @@ expect "$ " {
 }
 
 expect "$ " {
-    send "curl -I http://localhost:5670 2>&1 | head -5\r"
+    send "curl -I http://localhost:53177 2>&1 | head -5\r"
 }
 
 expect "$ " {
@@ -67,7 +67,7 @@ expect "$ " {
 }
 
 expect "$ " {
-    send "echo '📡 访问地址: http://10.102.32.144:5670'\r"
+    send "echo '📡 访问地址: http://10.102.32.144:53177'\r"
 }
 
 expect "$ " {

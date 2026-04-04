@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # AIGC Security 项目部署脚本
-# 目标服务器: 10.102.33.11 (访问地址: 10.102.32.144:5670)
+# 目标服务器: 10.102.33.11 (访问地址: 10.102.32.144:53177)
 
 SERVER_USER="shixu"
 SERVER_HOST="10.102.33.11"
@@ -11,7 +11,7 @@ LOCAL_PATH="/Users/shixu.mai/Desktop/aigc-security"
 echo "====================================="
 echo "开始部署 AIGC Security 项目"
 echo "目标服务器: ${SERVER_HOST}"
-echo "访问地址: http://10.102.32.144:5670"
+echo "访问地址: http://10.102.32.144:53177"
 echo "====================================="
 
 # 1. 传输文件
@@ -48,10 +48,10 @@ ssh ${SERVER_USER}@${SERVER_HOST} << 'ENDSSH'
     npm install
     
     # 检查端口占用
-    echo "检查端口 5670..."
-    PID=$(lsof -ti:5670)
+    echo "检查端口 53177..."
+    PID=$(lsof -ti:53177)
     if [ ! -z "$PID" ]; then
-        echo "端口 5670 被占用，停止进程 $PID..."
+        echo "端口 53177 被占用，停止进程 $PID..."
         kill -9 $PID
         sleep 2
     fi
@@ -64,8 +64,8 @@ ssh ${SERVER_USER}@${SERVER_HOST} << 'ENDSSH'
     sleep 5
     
     # 检查服务是否启动
-    if lsof -ti:5670 > /dev/null; then
-        echo "✅ 服务已成功启动在端口 5670"
+    if lsof -ti:53177 > /dev/null; then
+        echo "✅ 服务已成功启动在端口 53177"
         echo "查看日志: tail -f ~/aigc-security/app.log"
     else
         echo "❌ 服务启动失败，请查看日志: cat ~/aigc-security/app.log"
@@ -81,7 +81,7 @@ fi
 echo ""
 echo "====================================="
 echo "✅ 部署完成！"
-echo "访问地址: http://10.102.32.144:5670"
+echo "访问地址: http://10.102.32.144:53177"
 echo "====================================="
 echo ""
 echo "其他命令:"

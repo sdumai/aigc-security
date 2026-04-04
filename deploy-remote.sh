@@ -35,14 +35,14 @@ fi
 tmux kill-session -t aigc-security 2>/dev/null || true
 
 # 创建新的tmux会话并启动服务
-tmux new-session -d -s aigc-security "http-server . -p 5670 -a 0.0.0.0"
+tmux new-session -d -s aigc-security "http-server . -p 53177 -a 0.0.0.0"
 
 echo "✅ 服务已在tmux会话 'aigc-security' 中启动"
-echo "📡 访问地址: http://10.102.32.144:5670"
+echo "📡 访问地址: http://10.102.32.144:53177"
 ENDSSH
 
 echo "✅ 部署完成！"
-echo "🌐 访问地址: http://10.102.32.144:5670"
+echo "🌐 访问地址: http://10.102.32.144:53177"
 echo "📋 查看服务: ssh lab426@10.102.32.144 'tmux attach -t aigc-security'"
 
 

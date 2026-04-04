@@ -47,7 +47,7 @@ expect "$ " {
 }
 
 expect "$ " {
-    send "curl -I http://localhost:5670\r"
+    send "curl -I http://localhost:53177\r"
 }
 
 expect "$ " {
@@ -57,7 +57,7 @@ expect "$ " {
 expect eof
 
 puts "\n✅ 部署完成！"
-puts "🌐 访问地址: http://10.102.32.144:5670"
+puts "🌐 访问地址: http://10.102.32.144:53177"
 
 
 

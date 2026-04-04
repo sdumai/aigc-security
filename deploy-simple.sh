@@ -9,7 +9,7 @@ echo "================================"
 REMOTE_HOST="10.102.32.144"
 REMOTE_USER="lab426"
 REMOTE_DIR="aigc-security-platform"
-REMOTE_PORT="5670"
+REMOTE_PORT="53177"
 
 # 检查 dist 目录
 if [ ! -d "dist" ]; then
@@ -69,7 +69,7 @@ fi
 tmux kill-session -t aigc-security 2>/dev/null || true
 
 # 启动新服务
-tmux new-session -d -s aigc-security 'http-server . -p 5670 -a 0.0.0.0'
+tmux new-session -d -s aigc-security 'http-server . -p 53177 -a 0.0.0.0'
 
 echo "✅ 服务已在后台启动（tmux 会话: aigc-security）"
 

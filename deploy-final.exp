@@ -63,7 +63,7 @@ expect "$ " {
 }
 
 expect "$ " {
-    send "tmux new-session -d -s aigc-security 'http-server . -p 5670 -a 0.0.0.0'\r"
+    send "tmux new-session -d -s aigc-security 'http-server . -p 53177 -a 0.0.0.0'\r"
 }
 
 expect "$ " {
@@ -77,7 +77,7 @@ expect "$ " {
 expect eof
 
 puts "\n✅ 部署完成！"
-puts "🌐 访问地址: http://10.102.32.144:5670"
+puts "🌐 访问地址: http://10.102.32.144:53177"
 puts "📋 查看服务: ssh lab426@10.102.32.144 'tmux attach -t aigc-security'"
 
 

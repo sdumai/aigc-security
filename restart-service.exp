@@ -27,7 +27,7 @@ expect "$ " {
 }
 
 expect "$ " {
-    send "tmux new-session -d -s aigc-security 'http-server . -p 5670 -a 0.0.0.0'\r"
+    send "tmux new-session -d -s aigc-security 'http-server . -p 53177 -a 0.0.0.0'\r"
 }
 
 expect "$ " {
@@ -39,11 +39,11 @@ expect "$ " {
 }
 
 expect "$ " {
-    send "netstat -tlnp | grep 5670 || ss -tlnp | grep 5670\r"
+    send "netstat -tlnp | grep 53177 || ss -tlnp | grep 53177\r"
 }
 
 expect "$ " {
-    send "curl -s http://localhost:5670 | head -10\r"
+    send "curl -s http://localhost:53177 | head -10\r"
 }
 
 expect "$ " {

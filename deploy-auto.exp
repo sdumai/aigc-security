@@ -8,7 +8,7 @@ set remote_host "10.102.32.144"
 set remote_user "lab426"
 set remote_pass "426"
 set remote_dir "aigc-security-platform"
-set remote_port "5670"
+set remote_port "53177"
 
 puts "\n🚀 AIGC 安全平台 - 自动化部署"
 puts "================================\n"

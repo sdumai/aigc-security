@@ -19,7 +19,7 @@ expect "$ " {
 }
 
 expect "$ " {
-    send "curl -s http://localhost:5670 | head -20\r"
+    send "curl -s http://localhost:53177 | head -20\r"
 }
 
 expect "$ " {

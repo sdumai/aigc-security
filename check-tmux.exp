@@ -23,7 +23,7 @@ expect "$ " {
 }
 
 expect "$ " {
-    send "curl -I http://localhost:5670 2>&1\r"
+    send "curl -I http://localhost:53177 2>&1\r"
 }
 
 expect "$ " {

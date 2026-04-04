@@ -10,7 +10,7 @@ REMOTE_HOST="10.102.32.144"
 REMOTE_USER="lab426"
 REMOTE_PASS="426"
 REMOTE_DIR="aigc-security-platform"
-REMOTE_PORT="5670"
+REMOTE_PORT="53177"
 
 # 1. 生产构建（会读取 .env.production 中的 VITE_*）
 if [ ! -f "package.json" ]; then
