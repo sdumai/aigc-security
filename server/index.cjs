@@ -3,6 +3,7 @@
  * 火山方舟：VOLC_ARK_API_KEY、VOLC_ARK_VISION_MODEL（图片/视频理解、AI 生成检测、敏感检测）
  * 火山人像融合：VOLC_ACCESS_KEY、VOLC_SECRET_KEY
  * 自托管文生图：STABLE_DIFFUSION_SERVICE_URL 或 SD_SERVICE_URL（默认 http://127.0.0.1:8009）→ /api/generate/image-stable-diffusion
+ * 自托管文生视频(ModelScope T2V)：MODELSCOPE_T2V_URL 或 MS_T2V_URL（默认 http://127.0.0.1:8011）→ /api/generate/model-scope
  * 启动：node server/index.cjs
  */
 require("dotenv").config({ path: ".env.local" });
@@ -519,6 +520,13 @@ const STABLE_DIFFUSION_SERVICE_URL = (
   "http://127.0.0.1:8009"
 ).replace(/\/$/, "");
 
+/** ModelScope 文生视频（FastAPI POST /api/t2v/generate，返回 videoUrl 多为 data:video/mp4;base64,...） */
+const MODELSCOPE_T2V_URL = (
+  process.env.MODELSCOPE_T2V_URL ||
+  process.env.MS_T2V_URL ||
+  "http://127.0.0.1:8011"
+).replace(/\/$/, "");
+
 /** 轮询方舟视频任务直至完成，返回 videoUrl 或 null（失败/超时由调用方 sendErr） */
 async function pollArkVideoTask(taskId) {
   const maxAttempts = 120;
@@ -853,6 +861,71 @@ app.post("/api/generate/image-stable-diffusion", async (req, res) => {
   }
 });
 
+/**
+ * 文生视频（ModelScope 自托管）：代理到本机 uvicorn（默认 :8011）。
+ * 上游 GenerateReq：prompt, num_frames(4–24), num_inference_steps(10–50)；返回 { videoUrl, message }。
+ */
+app.post("/api/generate/model-scope", async (req, res) => {
+  const sendErr = (msg) => res.status(500).json({ error: msg });
+  try {
+    const { prompt, num_frames, num_inference_steps } = req.body || {};
+    const promptText = typeof prompt === "string" ? prompt.trim() : "";
+    if (!promptText) {
+      return res.status(400).json({ error: "需要 prompt（提示词）" });
+    }
+    let frames = Number(num_frames);
+    if (!Number.isFinite(frames)) frames = 16;
+    frames = Math.min(24, Math.max(4, Math.round(frames)));
+    let steps = Number(num_inference_steps);
+    if (!Number.isFinite(steps)) steps = 25;
+    steps = Math.min(50, Math.max(10, Math.round(steps)));
+
+    const msRes = await fetch(`${MODELSCOPE_T2V_URL}/api/t2v/generate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        prompt: promptText,
+        num_frames: frames,
+        num_inference_steps: steps,
+      }),
+    });
+    const text = await msRes.text();
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      return sendErr(text.slice(0, 200) || `ModelScope T2V 返回非 JSON（${msRes.status}）`);
+    }
+    if (!msRes.ok) {
+      const d = data.detail;
+      const msg =
+        typeof d === "string"
+          ? d
+          : Array.isArray(d)
+            ? d.map((x) => x?.msg || String(x)).join("；")
+            : data.error || `ModelScope T2V 错误 ${msRes.status}`;
+      return sendErr(msg || "ModelScope T2V 请求失败");
+    }
+    const videoUrl = data.videoUrl;
+    if (!videoUrl || typeof videoUrl !== "string") {
+      return sendErr("ModelScope T2V 未返回 videoUrl");
+    }
+    const normalized = videoUrl.trim();
+    res.json({
+      videoUrl: normalized,
+      message: data.message || "视频生成成功！",
+      format: normalized.startsWith("data:") ? "data_url" : "url",
+    });
+  } catch (err) {
+    console.error("ModelScope T2V proxy error:", err);
+    sendErr(
+      err && err.message
+        ? err.message
+        : "无法连接 ModelScope T2V（MODELSCOPE_T2V_URL / 默认 127.0.0.1:8011）",
+    );
+  }
+});
+
 /** 文生视频：创建任务后轮询 */
 app.post("/api/generate/t2v", async (req, res) => {
   const sendErr = (msg) => res.status(500).json({ error: msg });
@@ -966,7 +1039,10 @@ app.listen(PORT, () => {
     console.log(
       `文生图(SD 代理→${STABLE_DIFFUSION_SERVICE_URL}): http://localhost:${PORT}/api/generate/image-stable-diffusion`,
     );
-    console.log(`文生视频: http://localhost:${PORT}/api/generate/t2v`);
+    console.log(`文生视频(火山): http://localhost:${PORT}/api/generate/t2v`);
+    console.log(
+      `文生视频(ModelScope→${MODELSCOPE_T2V_URL}): http://localhost:${PORT}/api/generate/model-scope`,
+    );
     console.log(`图生视频: http://localhost:${PORT}/api/generate/i2v`);
   }
 });

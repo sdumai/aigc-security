@@ -53,9 +53,16 @@ function dataUrlToBlob(dataUrl: string): Blob {
   return new Blob([arr], { type: m[1] || "image/png" });
 }
 
+const VIDEO_MODEL_OPTIONS = [
+  { value: "volc", label: "火山引擎（方舟）", endpoint: "/api/generate/t2v" },
+  { value: "modelscope", label: "ModelScope（自托管文生视频）", endpoint: "/api/generate/model-scope" },
+] as const;
+
 interface VideoResult {
   videoUrl: string;
   message: string;
+  /** 火山多为 http(s) URL；ModelScope 代理返回 data:video/mp4;base64,... */
+  format?: "url" | "data_url";
 }
 
 const GeneralGeneratePage = () => {
@@ -252,6 +259,7 @@ const GeneralGeneratePage = () => {
 
   // ---------- 文生视频 ----------
   const [videoForm] = Form.useForm();
+  const videoModel = Form.useWatch("videoModel", videoForm);
   const [videoLoading, setVideoLoading] = useState(false);
   const [videoResult, setVideoResult] = useState<VideoResult | null>(null);
 
@@ -260,18 +268,36 @@ const GeneralGeneratePage = () => {
       const values = await videoForm.validateFields();
       setVideoLoading(true);
       setVideoResult(null);
-      const res = await fetch(`${apiBase}/api/generate/t2v`, {
+      const model = values.videoModel as string;
+      const opt = VIDEO_MODEL_OPTIONS.find((o) => o.value === model);
+      const endpoint = opt?.endpoint ?? "/api/generate/t2v";
+      const isModelScope = model === "modelscope";
+      const bodyObj = isModelScope
+        ? {
+            prompt: values.prompt,
+            num_frames: Number(values.t2vFrames) || 16,
+            num_inference_steps: Number(values.t2vSteps) || 25,
+          }
+        : {
+            prompt: values.prompt,
+            ratio: values.ratio,
+            duration: values.duration,
+          };
+      const res = await fetch(`${apiBase}${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          prompt: values.prompt,
-          ratio: values.ratio,
-          duration: values.duration,
-        }),
+        body: JSON.stringify(bodyObj),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "请求失败");
-      setVideoResult({ videoUrl: data.videoUrl, message: data.message || "视频生成成功！" });
+      const raw = typeof data.videoUrl === "string" ? data.videoUrl.trim() : "";
+      if (!raw) throw new Error("未返回视频地址");
+      const isData = raw.startsWith("data:") || data.format === "data_url";
+      setVideoResult({
+        videoUrl: raw,
+        message: data.message || "视频生成成功！",
+        format: isData ? "data_url" : "url",
+      });
       message.success("视频生成成功！");
     } catch (error) {
       message.error(error instanceof Error ? error.message : "生成失败，请重试");
@@ -284,8 +310,18 @@ const GeneralGeneratePage = () => {
     if (!videoResult?.videoUrl) return;
     try {
       message.loading("正在下载视频（可能需要较长时间）...", 0);
-      const response = await fetch(videoResult.videoUrl);
-      const blob = await response.blob();
+      let blob: Blob;
+      if (videoResult.videoUrl.startsWith("data:")) {
+        const m = videoResult.videoUrl.match(/^data:([^;]+);base64,([\s\S]+)$/);
+        if (!m) throw new Error("无效的 data URL");
+        const binary = atob(m[2].replace(/\s/g, ""));
+        const arr = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) arr[i] = binary.charCodeAt(i);
+        blob = new Blob([arr], { type: m[1] || "video/mp4" });
+      } else {
+        const response = await fetch(videoResult.videoUrl);
+        blob = await response.blob();
+      }
       const blobUrl = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = blobUrl;
@@ -323,7 +359,36 @@ const GeneralGeneratePage = () => {
     <Row gutter={24}>
       <Col xs={24} lg={12}>
         <Card title="文生视频参数" bordered={false}>
-          <Form form={videoForm} layout="vertical" initialValues={{ duration: "5", ratio: "16:9" }}>
+          <Form
+            form={videoForm}
+            layout="vertical"
+            initialValues={{
+              videoModel: "volc",
+              duration: "5",
+              ratio: "16:9",
+              t2vFrames: "16",
+              t2vSteps: "25",
+            }}
+          >
+            <Form.Item
+              label="生成模型"
+              name="videoModel"
+              tooltip="火山返回可播放 URL；ModelScope（8011）经 Node 代理返回 data:video/mp4;base64"
+              rules={[{ required: true, message: "请选择模型" }]}
+            >
+              <Select>
+                {VIDEO_MODEL_OPTIONS.map((o) => (
+                  <Select.Option key={o.value} value={o.value}>
+                    {o.label}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Form.Item>
+            {videoModel === "modelscope" && (
+              <Paragraph type="secondary" style={{ marginTop: -8, marginBottom: 8 }}>
+                与文生图里选 Stable Diffusion 类似：由后端转发至 MODELSCOPE_T2V_URL（默认 8011）。参数对应 server.py：prompt、num_frames(4–24)、num_inference_steps(10–50)。
+              </Paragraph>
+            )}
             <Form.Item label="提示词（Prompt）" name="prompt" rules={[{ required: true, message: "请输入提示词" }]}>
               <TextArea
                 rows={4}
@@ -332,21 +397,52 @@ const GeneralGeneratePage = () => {
                 maxLength={500}
               />
             </Form.Item>
-            <Form.Item label="画幅比例" name="ratio">
-              <Select>
-                <Select.Option value="16:9">16:9</Select.Option>
-                <Select.Option value="1:1">1:1</Select.Option>
-                <Select.Option value="9:16">9:16</Select.Option>
-              </Select>
-            </Form.Item>
-            <Form.Item label="生成时长（秒）" name="duration" rules={[{ required: true, message: "请选择时长" }]}>
-              <Select>
-                <Select.Option value="3">3 秒</Select.Option>
-                <Select.Option value="5">5 秒</Select.Option>
-                <Select.Option value="8">8 秒</Select.Option>
-                <Select.Option value="12">12 秒</Select.Option>
-              </Select>
-            </Form.Item>
+            {videoModel !== "modelscope" && (
+              <Form.Item label="画幅比例" name="ratio">
+                <Select>
+                  <Select.Option value="16:9">16:9</Select.Option>
+                  <Select.Option value="1:1">1:1</Select.Option>
+                  <Select.Option value="9:16">9:16</Select.Option>
+                </Select>
+              </Form.Item>
+            )}
+            {videoModel === "modelscope" ? (
+              <>
+                <Form.Item
+                  label="视频帧数 num_frames"
+                  name="t2vFrames"
+                  rules={[{ required: true, message: "请选择帧数" }]}
+                  tooltip="服务端限制 4–24，导出约 fps=8"
+                >
+                  <Select>
+                    <Select.Option value="8">8 帧</Select.Option>
+                    <Select.Option value="16">16 帧（约 2 秒）</Select.Option>
+                    <Select.Option value="24">24 帧（约 3 秒）</Select.Option>
+                  </Select>
+                </Form.Item>
+                <Form.Item
+                  label="推理步数 num_inference_steps"
+                  name="t2vSteps"
+                  rules={[{ required: true, message: "请选择步数" }]}
+                  tooltip="10–50，越大越慢、质量可能略好"
+                >
+                  <Select>
+                    <Select.Option value="15">15（较快）</Select.Option>
+                    <Select.Option value="25">25（默认）</Select.Option>
+                    <Select.Option value="35">35</Select.Option>
+                  </Select>
+                </Form.Item>
+              </>
+            ) : (
+              <Form.Item label="生成时长（秒）" name="duration" rules={[{ required: true, message: "请选择时长" }]}>
+                <Select>
+                  <Select.Option value="3">3 秒</Select.Option>
+                  <Select.Option value="5">5 秒</Select.Option>
+                  <Select.Option value="8">8 秒</Select.Option>
+                  <Select.Option value="12">12 秒</Select.Option>
+                </Select>
+              </Form.Item>
+            )}
             <Form.Item>
               <Button
                 type="primary"

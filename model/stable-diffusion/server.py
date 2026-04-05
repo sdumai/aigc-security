@@ -19,9 +19,9 @@ pipe = StableDiffusionPipeline.from_pretrained(
     safety_checker=None,
 )
 if HAS_GPU:
-    pipe = pipe.to("cuda")
+    pipe.enable_model_cpu_offload()
 else:
-    pipe.enable_attention_slicing()  # CPU 节省内存
+    pipe.enable_attention_slicing()
 
 print(f"模型加载完成！使用 {'GPU' if HAS_GPU else 'CPU'} 推理")
 

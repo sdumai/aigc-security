@@ -1,0 +1,52 @@
+# ========== 与 stable-diffusion 共用 GPU 前，torch 必须是「+cu118」轮子 ==========
+#
+# 勿对整文件执行 pip install -r requirements.txt --force-reinstall：
+#   accelerate 等会按「torch>=1.10」解析到 PyPI 上的 torch-2.4.1（cu12），覆盖 +cu118。
+#   正确做法：本文件已钉死 torch/torchvision；日常升级用 pip install -U 单包或删 venv 后普通 install。
+#
+# diffusers<0.27 仍从 huggingface_hub 导入 cached_download；hub>=0.23 已移除 → ImportError。
+#   因此必须 huggingface_hub<0.23，并把 transformers 限制在仍兼容该 hub 的区间（勿装 4.46+）。
+#
+# 若 pip show torch 只有 Version: 2.4.1 没有 +cu118，或 pip list 里有 nvidia-*-cu12：
+#   说明装成了 CUDA12 依赖包，老驱动会报 driver too old。
+#
+# 必须先卸再装（否则 pip 会提示 already satisfied 而不换成正确轮子）：
+#   pip uninstall -y torch torchvision triton
+#   pip uninstall -y nvidia-cuda-nvrtc-cu12 nvidia-cuda-runtime-cu12 nvidia-cuda-cupti-cu12 \
+#     nvidia-cudnn-cu12 nvidia-cublas-cu12 nvidia-cufft-cu12 nvidia-curand-cu12 \
+#     nvidia-cusolver-cu12 nvidia-cusparse-cu12 nvidia-nccl-cu12 nvidia-nvtx-cu12 \
+#     nvidia-nvjitlink-cu12
+#   pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
+#   pip show torch | grep Version
+# 必须看到类似：Version: 2.0.1+cu118（与本文件钉死的版本一致）
+#
+# --- /health 里 gpu:true 但 POST 生成报 NVML / nvmlDeviceGetNvLinkRemoteDeviceType ---
+# is_available() 不一定会走 NVML；推理时才触发，故健康检查正常、一生成就失败。
+# 原因：PyTorch 2.1+ 会调较新的 libnvidia-ml，465 等老驱动自带的 .so 里没有该符号。
+# 处理（二选一）：① 升级显卡驱动；② 用 torch 2.0.1+cu118（本文件已钉死此版本）。
+# 已验证 2.3.1+cu118 仍有此问题，故直接用 2.0.1+cu118。
+# 或 shell 启动前加（与 server.py 内逻辑一致，二选一即可）：
+#   export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
+#
+# 更省事：不要本目录单独 venv，在 stable-diffusion 里 source venv 后只装本文件下面依赖（勿再装 torch）。
+#
+# 固定 cu118 轮子（与下面 typing-extensions 等同一文件，保证一次 pip install 不会换成 cu12）
+--extra-index-url https://download.pytorch.org/whl/cu118
+torch==2.0.1+cu118
+torchvision==0.15.2+cu118
+
+# Python 3.8：
+typing-extensions>=4.5.0,<4.12.0
+
+# torch 2.0.x/2.1.x 没有 torch.xpu；diffusers>=0.27 起在 import 时会访问 torch.xpu → AttributeError。
+# 若已用 torch>=2.4 且能正常 import，可改为：pip install "diffusers>=0.27" 并去掉 huggingface_hub 上限、放宽 transformers。
+diffusers>=0.23.0,<0.27.0
+huggingface_hub>=0.20.2,<0.23.0
+transformers>=4.36.0,<4.40.0
+accelerate>=0.21.0,<0.34.0
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
+pillow>=10.0.0
+safetensors>=0.4.0
+imageio>=2.31.0
+imageio-ffmpeg>=0.4.9

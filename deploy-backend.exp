@@ -1,17 +1,20 @@
 #!/usr/bin/expect -f
 # 后端独立部署脚本（与前端部署脚本 快速部署.sh / deploy-final.exp 完全独立，互不影响）
 #
-# 端口约定（Stable Diffusion 与 UFD 分开部署，不使用 unified_ml_api 合并）：
-#   - Node 代理（server/index.cjs）     :3001   tmux: aigc-security-backend
-#   - UniversalFakeDetect 假图检测 API   :8008   tmux: universal-fake-detect
-#   - Stable Diffusion v1.5 文生图       :8009   需自行在服务器配置 Python venv 后用 uvicorn 常驻（见文末说明）
+# 端口约定（各服务独立进程；SD / ModelScope T2V 由本脚本尝试自动 venv+pip+tmux 启动）：
+#   - Node 代理（server/index.cjs）              :3001   tmux: aigc-security-backend
+#   - UniversalFakeDetect 假图检测 API            :8008   tmux: universal-fake-detect
+#   - Stable Diffusion v1.5 文生图               :8009   tmux: stable-diffusion（脚本自动启）
+#   - ModelScope Text-to-Video                   :8011   tmux: modelscope-t2v（脚本自动启）
 #
 # 权重：model/UniversalFakeDetect/pretrained_weights/fc_weights.pth
-# SD：首次运行会从镜像拉取 Hugging Face 模型（约数 GB），建议在 stable-diffusion 目录下使用 venv。
+# 首次部署：SD/T2V 的 pip 与模型下载可能极久（数十分钟级），下方 expect 使用 timeout -1 等待 DEPLOY_BACKEND_OK。
+# T2V 勿对 requirements 整包 --force-reinstall，以免顶掉 torch/cu118 版本。
 #
 # Node 环境变量（可选）：
 #   UNIVERSAL_FAKE_DETECT_URL=http://127.0.0.1:8008
-#   STABLE_DIFFUSION_SERVICE_URL=http://127.0.0.1:8009   （文生图代理 /api/generate/image-stable-diffusion）
+#   STABLE_DIFFUSION_SERVICE_URL=http://127.0.0.1:8009
+#   MODELSCOPE_T2V_URL=http://127.0.0.1:8011
 
 set timeout 120
 set remote_host "10.102.32.144"
@@ -22,8 +25,10 @@ set ufd_tmux_session "universal-fake-detect"
 set ufd_port "8008"
 set sd_port "8009"
 set sd_tmux_session "stable-diffusion"
+set t2v_port "8011"
+set t2v_tmux_session "modelscope-t2v"
 
-puts "🚀 开始部署后端到 ${remote_host}（Node :3001，UFD :${ufd_port}，SD 文档 :${sd_port}）..."
+puts "🚀 开始部署到 ${remote_host}（Node :3001，UFD :${ufd_port}，SD :${sd_port}，T2V :${t2v_port}，首次 pip/模型可能很久）..."
 
 # 1. 创建远程目录
 puts "📁 创建远程目录..."
@@ -58,9 +63,20 @@ expect {
     eof
 }
 
-# 2c. 上传 Stable Diffusion 服务代码（独立端口 8009，与 UFD 不同进程）
-puts "📦 上传 model/stable-diffusion（文生图，部署后需在服务器自建 venv 并手动 tmux 启动）..."
-spawn bash -c "tar czf - --exclude='__pycache__' --exclude='*.pyc' --exclude='venv' model/stable-diffusion 2>/dev/null | ssh -o StrictHostKeyChecking=no ${remote_user}@${remote_host} 'mkdir -p ~/${backend_dir} && cd ~/${backend_dir} && tar xzf -'"
+# 2c. 上传 Stable Diffusion 服务代码（独立端口 8009）
+puts "📦 上传 model/stable-diffusion（文生图）..."
+spawn bash -c "tar czf - --exclude='__pycache__' --exclude='*.pyc' --exclude='venv' --exclude='._*' model/stable-diffusion 2>/dev/null | ssh -o StrictHostKeyChecking=no ${remote_user}@${remote_host} 'mkdir -p ~/${backend_dir} && cd ~/${backend_dir} && tar xzf -'"
+expect {
+    "password:" {
+        send "${remote_pass}\r"
+        exp_continue
+    }
+    eof
+}
+
+# 2d. 上传 ModelScope 文生视频（独立端口 8011）
+puts "📦 上传 model/ModelScopeT2V..."
+spawn bash -c "tar czf - --exclude='__pycache__' --exclude='*.pyc' --exclude='venv' --exclude='._*' model/ModelScopeT2V 2>/dev/null | ssh -o StrictHostKeyChecking=no ${remote_user}@${remote_host} 'mkdir -p ~/${backend_dir} && cd ~/${backend_dir} && tar xzf -'"
 expect {
     "password:" {
         send "${remote_pass}\r"
@@ -80,8 +96,8 @@ expect {
     eof
 }
 
-# 4. SSH 登录并安装依赖、启动 Node + UFD 服务（单次发送整段命令，避免 expect 匹配提示符卡住）
-puts "🔧 安装依赖并启动后端与假图检测服务..."
+# 4. SSH：npm + UFD；并自动 venv/pip + tmux 启动 SD（8009）与 ModelScope T2V（8011）
+puts "🔧 安装依赖并启动 Node、UFD、SD、ModelScope T2V（首次可能极久，请等待 DEPLOY_BACKEND_OK）..."
 spawn ssh -o StrictHostKeyChecking=no ${remote_user}@${remote_host}
 expect {
     "password:" {
@@ -95,15 +111,15 @@ expect {
     -re {\r\n\[^\r\n\]*\$ ?} { }
     timeout { puts "\n  (未检测到标准提示符，继续执行)" }
 }
-set timeout 600
+# 首次 SD/T2V pip 与模型下载不设上限，避免 600s 误杀
+set timeout -1
 
-# 一次性执行：npm；UFD 的 pip；两个 tmux 会话（Node 与 python api）
-send "cd ~/${backend_dir} && npm install --omit=dev && tmux kill-session -t aigc-security-backend 2>/dev/null || true && DETECT_PROXY_PORT=3001 tmux new-session -d -s aigc-security-backend 'cd ~/${backend_dir} && node server/index.cjs' && cd ~/${backend_dir}/model/UniversalFakeDetect && python3 -m pip install -r requirements-api.txt --user && tmux kill-session -t ${ufd_tmux_session} 2>/dev/null || true && tmux new-session -d -s ${ufd_tmux_session} 'cd ~/${backend_dir}/model/UniversalFakeDetect && UFD_API_PORT=${ufd_port} python3 api.py' && echo DEPLOY_BACKEND_OK\r"
+# 一次性执行（tmux -d 立即返回；模型在各自会话内加载）
+send "cd ~/${backend_dir} && npm install --omit=dev && tmux kill-session -t aigc-security-backend 2>/dev/null || true && DETECT_PROXY_PORT=3001 tmux new-session -d -s aigc-security-backend 'cd ~/${backend_dir} && node server/index.cjs' && cd ~/${backend_dir}/model/UniversalFakeDetect && python3 -m pip install -r requirements-api.txt --user && tmux kill-session -t ${ufd_tmux_session} 2>/dev/null || true && tmux new-session -d -s ${ufd_tmux_session} 'cd ~/${backend_dir}/model/UniversalFakeDetect && UFD_API_PORT=${ufd_port} python3 api.py' && cd ~/${backend_dir}/model/stable-diffusion && (test -d venv || python3 -m venv venv) && . venv/bin/activate && pip install -U pip setuptools wheel && pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118 && pip install diffusers transformers accelerate fastapi uvicorn pillow safetensors && tmux kill-session -t ${sd_tmux_session} 2>/dev/null || true && tmux new-session -d -s ${sd_tmux_session} 'cd ~/${backend_dir}/model/stable-diffusion && . venv/bin/activate && export HF_ENDPOINT=https://hf-mirror.com && uvicorn server:app --host 0.0.0.0 --port ${sd_port}' && cd ~/${backend_dir}/model/ModelScopeT2V && (test -d venv || python3 -m venv venv) && . venv/bin/activate && pip install -U pip setuptools wheel && pip install -r requirements.txt && pip install opencv-python-headless && tmux kill-session -t ${t2v_tmux_session} 2>/dev/null || true && tmux new-session -d -s ${t2v_tmux_session} 'cd ~/${backend_dir}/model/ModelScopeT2V && . venv/bin/activate && export HF_ENDPOINT=https://hf-mirror.com && uvicorn server:app --host 0.0.0.0 --port ${t2v_port}' && echo DEPLOY_BACKEND_OK\r"
 
-# 等待命令执行结束（以 DEPLOY_BACKEND_OK 或超时为准）
 expect {
-    "DEPLOY_BACKEND_OK" { puts "\n  (Node 与 UFD 服务已启动)" }
-    timeout { puts "\n  ⚠️ 超时，请登录服务器检查: ssh -t ${remote_user}@${remote_host} 'tmux attach -t aigc-security-backend' 或 tmux attach -t ${ufd_tmux_session}" }
+    "DEPLOY_BACKEND_OK" { puts "\n  (Node、UFD、SD、T2V 已按序启动或已提交 tmux；SD/T2V 模型在会话内加载，可用 tmux attach 查看)" }
+    timeout { puts "\n  ⚠️ 未收到完成标记（不应出现：已设无限等待）" }
 }
 send "exit\r"
 expect eof
@@ -111,21 +127,20 @@ expect eof
 puts "\n✅ 后端部署完成！"
 puts "🌐 Node API: http://${remote_host}:3001/api"
 puts "🌐 假图检测 UFD: http://${remote_host}:${ufd_port}/health （POST /detect、/detect/upload）"
-puts "🌐 文生图 SD（独立 ${sd_port}，本脚本不自动启动）:"
+puts "🌐 文生图 SD（${sd_port}，脚本已尝试自动 pip + tmux；模型加载见 tmux）:"
 puts "   - 健康检查: GET http://${remote_host}:${sd_port}/health"
 puts "   - 生成接口: POST http://${remote_host}:${sd_port}/api/sd/generate"
-puts "📋 首次在服务器启用 SD（在 SSH 内执行，需已安装 CUDA 版或 CPU 版 torch + pip install -r requirements.txt）:"
-puts "   cd ~/${backend_dir}/model/stable-diffusion"
-puts "   python3 -m venv venv   # 若系统缺 ensurepip: sudo apt install python3-venv"
-puts "   source venv/bin/activate"
-puts "   pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118   # 或 /whl/cpu"
-puts "   pip install -r requirements.txt"
-puts "   export HF_ENDPOINT=https://hf-mirror.com"
-puts "   tmux kill-session -t ${sd_tmux_session} 2>/dev/null || true"
-puts "   tmux new-session -d -s ${sd_tmux_session} 'cd ~/${backend_dir}/model/stable-diffusion && source venv/bin/activate && export HF_ENDPOINT=https://hf-mirror.com && uvicorn server:app --host 0.0.0.0 --port ${sd_port}'"
+puts "🌐 文生视频 ModelScope T2V（${t2v_port}，脚本已尝试自动 pip + tmux）:"
+puts "   - 健康检查: GET http://${remote_host}:${t2v_port}/health"
+puts "   - 生成接口: POST http://${remote_host}:${t2v_port}/api/t2v/generate"
+puts "📋 若 SD/T2V pip 失败需手动排错后重跑（示例）:"
+puts "   cd ~/${backend_dir}/model/stable-diffusion && . venv/bin/activate && pip install ... && tmux kill-session -t ${sd_tmux_session} 2>/dev/null; tmux new-session -d -s ${sd_tmux_session} 'cd ~/${backend_dir}/model/stable-diffusion && . venv/bin/activate && export HF_ENDPOINT=https://hf-mirror.com && uvicorn server:app --host 0.0.0.0 --port ${sd_port}'"
+puts "   cd ~/${backend_dir}/model/ModelScopeT2V && . venv/bin/activate && pip install -r requirements.txt && pip install opencv-python-headless && tmux kill-session -t ${t2v_tmux_session} 2>/dev/null; tmux new-session -d -s ${t2v_tmux_session} 'cd ~/${backend_dir}/model/ModelScopeT2V && . venv/bin/activate && export HF_ENDPOINT=https://hf-mirror.com && uvicorn server:app --host 0.0.0.0 --port ${t2v_port}'"
 puts "📋 查看 Node: ssh -t ${remote_user}@${remote_host} 'tmux attach -t aigc-security-backend'"
 puts "📋 查看 UFD:  ssh -t ${remote_user}@${remote_host} 'tmux attach -t ${ufd_tmux_session}'"
 puts "📋 查看 SD:   ssh -t ${remote_user}@${remote_host} 'tmux attach -t ${sd_tmux_session}'"
+puts "📋 查看 T2V:  ssh -t ${remote_user}@${remote_host} 'tmux attach -t ${t2v_tmux_session}'"
 puts "📋 停止 Node: ssh ${remote_user}@${remote_host} 'tmux kill-session -t aigc-security-backend'"
 puts "📋 停止 UFD:  ssh ${remote_user}@${remote_host} 'tmux kill-session -t ${ufd_tmux_session}'"
 puts "📋 停止 SD:   ssh ${remote_user}@${remote_host} 'tmux kill-session -t ${sd_tmux_session}'"
+puts "📋 停止 T2V:  ssh ${remote_user}@${remote_host} 'tmux kill-session -t ${t2v_tmux_session}'"
