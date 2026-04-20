@@ -527,6 +527,14 @@ const MODELSCOPE_T2V_URL = (
   "http://127.0.0.1:8011"
 ).replace(/\/$/, "");
 
+/** 上游若只返回裸 base64，补全为 data URL，便于浏览器 <video> 与前端一致处理 */
+function normalizeModelScopeVideoUrl(s) {
+  const t = String(s || "").trim();
+  if (!t) return t;
+  if (t.startsWith("http://") || t.startsWith("https://") || t.startsWith("data:")) return t;
+  return `data:video/mp4;base64,${t.replace(/\s/g, "")}`;
+}
+
 /** 轮询方舟视频任务直至完成，返回 videoUrl 或 null（失败/超时由调用方 sendErr） */
 async function pollArkVideoTask(taskId) {
   const maxAttempts = 120;
@@ -910,7 +918,7 @@ app.post("/api/generate/model-scope", async (req, res) => {
     if (!videoUrl || typeof videoUrl !== "string") {
       return sendErr("ModelScope T2V 未返回 videoUrl");
     }
-    const normalized = videoUrl.trim();
+    const normalized = normalizeModelScopeVideoUrl(videoUrl);
     res.json({
       videoUrl: normalized,
       message: data.message || "视频生成成功！",

@@ -9,7 +9,6 @@
 #
 # 权重：model/UniversalFakeDetect/pretrained_weights/fc_weights.pth
 # 首次部署：SD/T2V 的 pip 与模型下载可能极久（数十分钟级），下方 expect 使用 timeout -1 等待 DEPLOY_BACKEND_OK。
-# T2V 勿对 requirements 整包 --force-reinstall，以免顶掉 torch/cu118 版本。
 #
 # Node 环境变量（可选）：
 #   UNIVERSAL_FAKE_DETECT_URL=http://127.0.0.1:8008
@@ -28,7 +27,7 @@ set sd_tmux_session "stable-diffusion"
 set t2v_port "8011"
 set t2v_tmux_session "modelscope-t2v"
 
-puts "🚀 开始部署到 ${remote_host}（Node :3001，UFD :${ufd_port}，SD :${sd_port}，T2V :${t2v_port}，首次 pip/模型可能很久）..."
+puts "🚀 开始部署到 ${remote_host}（Node :3001，UFD :${ufd_port}，SD :${sd_port}，T2V :${t2v_port}）..."
 
 # 1. 创建远程目录
 puts "📁 创建远程目录..."
@@ -105,16 +104,13 @@ expect {
     }
 }
 
-# 等待首次 shell 提示（兼容 user@host:path$ 或 $ 等格式），最多等 15 秒
 set timeout 15
 expect {
-    -re {\r\n\[^\r\n\]*\$ ?} { }
+    -re {\r\n[^\r\n]*\$ ?} { }
     timeout { puts "\n  (未检测到标准提示符，继续执行)" }
 }
-# 首次 SD/T2V pip 与模型下载不设上限，避免 600s 误杀
 set timeout -1
 
-# 一次性执行（tmux -d 立即返回；模型在各自会话内加载）
 send "cd ~/${backend_dir} && npm install --omit=dev && tmux kill-session -t aigc-security-backend 2>/dev/null || true && DETECT_PROXY_PORT=3001 tmux new-session -d -s aigc-security-backend 'cd ~/${backend_dir} && node server/index.cjs' && cd ~/${backend_dir}/model/UniversalFakeDetect && python3 -m pip install -r requirements-api.txt --user && tmux kill-session -t ${ufd_tmux_session} 2>/dev/null || true && tmux new-session -d -s ${ufd_tmux_session} 'cd ~/${backend_dir}/model/UniversalFakeDetect && UFD_API_PORT=${ufd_port} python3 api.py' && cd ~/${backend_dir}/model/stable-diffusion && (test -d venv || python3 -m venv venv) && . venv/bin/activate && pip install -U pip setuptools wheel && pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118 && pip install diffusers transformers accelerate fastapi uvicorn pillow safetensors && tmux kill-session -t ${sd_tmux_session} 2>/dev/null || true && tmux new-session -d -s ${sd_tmux_session} 'cd ~/${backend_dir}/model/stable-diffusion && . venv/bin/activate && export HF_ENDPOINT=https://hf-mirror.com && uvicorn server:app --host 0.0.0.0 --port ${sd_port}' && cd ~/${backend_dir}/model/ModelScopeT2V && (test -d venv || python3 -m venv venv) && . venv/bin/activate && pip install -U pip setuptools wheel && pip install -r requirements.txt && pip install opencv-python-headless && tmux kill-session -t ${t2v_tmux_session} 2>/dev/null || true && tmux new-session -d -s ${t2v_tmux_session} 'cd ~/${backend_dir}/model/ModelScopeT2V && . venv/bin/activate && export HF_ENDPOINT=https://hf-mirror.com && uvicorn server:app --host 0.0.0.0 --port ${t2v_port}' && echo DEPLOY_BACKEND_OK\r"
 
 expect {
@@ -133,9 +129,6 @@ puts "   - 生成接口: POST http://${remote_host}:${sd_port}/api/sd/generate"
 puts "🌐 文生视频 ModelScope T2V（${t2v_port}，脚本已尝试自动 pip + tmux）:"
 puts "   - 健康检查: GET http://${remote_host}:${t2v_port}/health"
 puts "   - 生成接口: POST http://${remote_host}:${t2v_port}/api/t2v/generate"
-puts "📋 若 SD/T2V pip 失败需手动排错后重跑（示例）:"
-puts "   cd ~/${backend_dir}/model/stable-diffusion && . venv/bin/activate && pip install ... && tmux kill-session -t ${sd_tmux_session} 2>/dev/null; tmux new-session -d -s ${sd_tmux_session} 'cd ~/${backend_dir}/model/stable-diffusion && . venv/bin/activate && export HF_ENDPOINT=https://hf-mirror.com && uvicorn server:app --host 0.0.0.0 --port ${sd_port}'"
-puts "   cd ~/${backend_dir}/model/ModelScopeT2V && . venv/bin/activate && pip install -r requirements.txt && pip install opencv-python-headless && tmux kill-session -t ${t2v_tmux_session} 2>/dev/null; tmux new-session -d -s ${t2v_tmux_session} 'cd ~/${backend_dir}/model/ModelScopeT2V && . venv/bin/activate && export HF_ENDPOINT=https://hf-mirror.com && uvicorn server:app --host 0.0.0.0 --port ${t2v_port}'"
 puts "📋 查看 Node: ssh -t ${remote_user}@${remote_host} 'tmux attach -t aigc-security-backend'"
 puts "📋 查看 UFD:  ssh -t ${remote_user}@${remote_host} 'tmux attach -t ${ufd_tmux_session}'"
 puts "📋 查看 SD:   ssh -t ${remote_user}@${remote_host} 'tmux attach -t ${sd_tmux_session}'"

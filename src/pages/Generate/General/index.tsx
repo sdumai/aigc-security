@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useLayoutEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Card,
@@ -51,6 +51,14 @@ function dataUrlToBlob(dataUrl: string): Blob {
   const arr = new Uint8Array(binary.length);
   for (let i = 0; i < binary.length; i++) arr[i] = binary.charCodeAt(i);
   return new Blob([arr], { type: m[1] || "image/png" });
+}
+
+/** 火山返回 http(s)；ModelScope 应为 data:video/...，部分环境只给裸 base64，需补前缀才能被 <video> 识别 */
+function normalizeVideoUrlFromApi(raw: string): string {
+  const t = raw.trim();
+  if (!t) return t;
+  if (t.startsWith("http://") || t.startsWith("https://") || t.startsWith("data:")) return t;
+  return `data:video/mp4;base64,${t.replace(/\s/g, "")}`;
 }
 
 const VIDEO_MODEL_OPTIONS = [
@@ -262,6 +270,37 @@ const GeneralGeneratePage = () => {
   const videoModel = Form.useWatch("videoModel", videoForm);
   const [videoLoading, setVideoLoading] = useState(false);
   const [videoResult, setVideoResult] = useState<VideoResult | null>(null);
+  /** 超长 data URL 在部分浏览器作 video src 不稳定，预览用 Blob URL */
+  const [videoPreviewSrc, setVideoPreviewSrc] = useState<string | null>(null);
+
+  useLayoutEffect(() => {
+    let objectUrl: string | undefined;
+    const u = videoResult?.videoUrl;
+    if (!u) {
+      setVideoPreviewSrc(null);
+      return;
+    }
+    if (u.startsWith("http://") || u.startsWith("https://")) {
+      setVideoPreviewSrc(u);
+      return;
+    }
+    if (u.startsWith("data:")) {
+      try {
+        const blob = dataUrlToBlob(u);
+        objectUrl = URL.createObjectURL(blob);
+        setVideoPreviewSrc(objectUrl);
+      } catch {
+        setVideoPreviewSrc(u);
+      }
+      return () => {
+        if (objectUrl) URL.revokeObjectURL(objectUrl);
+      };
+    }
+    setVideoPreviewSrc(u);
+    return () => {
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    };
+  }, [videoResult?.videoUrl]);
 
   const handleVideoGenerate = async () => {
     try {
@@ -292,11 +331,17 @@ const GeneralGeneratePage = () => {
       if (!res.ok) throw new Error(data.error || "请求失败");
       const raw = typeof data.videoUrl === "string" ? data.videoUrl.trim() : "";
       if (!raw) throw new Error("未返回视频地址");
-      const isData = raw.startsWith("data:") || data.format === "data_url";
+      const canonical = normalizeVideoUrlFromApi(raw);
+      const fmt =
+        data.format === "data_url" || data.format === "url"
+          ? data.format
+          : canonical.startsWith("data:")
+            ? "data_url"
+            : "url";
       setVideoResult({
-        videoUrl: raw,
+        videoUrl: canonical,
         message: data.message || "视频生成成功！",
-        format: isData ? "data_url" : "url",
+        format: fmt,
       });
       message.success("视频生成成功！");
     } catch (error) {
@@ -467,7 +512,12 @@ const GeneralGeneratePage = () => {
             </div>
           ) : videoResult ? (
             <div>
-              <video src={videoResult.videoUrl} controls style={{ width: "100%", borderRadius: 8 }}>
+              <video
+                key={videoPreviewSrc || videoResult.videoUrl}
+                src={videoPreviewSrc || videoResult.videoUrl}
+                controls
+                style={{ width: "100%", borderRadius: 8 }}
+              >
                 您的浏览器不支持视频播放
               </video>
               <Space style={{ marginTop: 16, width: "100%" }} direction="vertical">
