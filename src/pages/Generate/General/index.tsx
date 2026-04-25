@@ -27,7 +27,7 @@ import {
 } from "@ant-design/icons";
 import type { UploadFile } from "antd";
 import request from "@/utils/request";
-import { apiBase } from "@/utils/apiBase";
+import { apiUrl } from "@/utils/apiBase";
 
 const { Title, Paragraph } = Typography;
 const { TextArea } = Input;
@@ -90,7 +90,7 @@ const GeneralGeneratePage = () => {
       const model = values.imageModel as string;
       const opt = IMAGE_MODEL_OPTIONS.find((o) => o.value === model);
       const endpoint = opt?.endpoint ?? "/api/generate/image";
-      const res = await fetch(`${apiBase}${endpoint}`, {
+      const res = await fetch(apiUrl(endpoint), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -103,10 +103,8 @@ const GeneralGeneratePage = () => {
       if (!res.ok) throw new Error(data.error || "请求失败");
       const rawUrl = typeof data.imageUrl === "string" ? data.imageUrl.trim() : "";
       if (!rawUrl) throw new Error("未返回图片数据");
-      const isData =
-        rawUrl.startsWith("data:") ||
-        data.format === "data_url" ||
-        (!rawUrl.startsWith("http://") && !rawUrl.startsWith("https://"));
+      const isResourceUrl = /^(https?:|blob:|\/)/.test(rawUrl);
+      const isData = rawUrl.startsWith("data:") || data.format === "data_url" || !isResourceUrl;
       const imageUrl = isData && !rawUrl.startsWith("data:") ? `data:image/png;base64,${rawUrl}` : rawUrl;
       const format: "url" | "data_url" =
         imageUrl.startsWith("data:") || data.format === "data_url" ? "data_url" : "url";
@@ -322,7 +320,7 @@ const GeneralGeneratePage = () => {
             ratio: values.ratio,
             duration: values.duration,
           };
-      const res = await fetch(`${apiBase}${endpoint}`, {
+      const res = await fetch(apiUrl(endpoint), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(bodyObj),
@@ -601,7 +599,7 @@ const GeneralGeneratePage = () => {
       }
 
       const values = i2vForm.getFieldsValue();
-      const res = await fetch(`${apiBase}/api/generate/i2v`, {
+      const res = await fetch(apiUrl("/api/generate/i2v"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

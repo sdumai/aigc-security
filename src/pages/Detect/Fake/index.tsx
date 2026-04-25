@@ -26,8 +26,7 @@ import {
   EyeOutlined,
 } from "@ant-design/icons";
 import type { UploadFile, UploadProps } from "antd";
-// import { apiBase } from "@/utils/apiBase";
-const apiBase = "http://10.102.32.144:3001";
+import { apiUrl } from "@/utils/apiBase";
 
 const { Title, Paragraph, Text } = Typography;
 const { Dragger } = Upload;
@@ -214,7 +213,7 @@ const FakeDetectPage = () => {
         return;
       }
 
-      const res = await fetch(`${apiBase}/api/detect/volc-video-aigc`, {
+      const res = await fetch(apiUrl("/api/detect/volc-video-aigc"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
@@ -298,7 +297,7 @@ const FakeDetectPage = () => {
       let detectionResult: DetectionResult;
 
       if (imageDetectBackend === "volc") {
-        const res = await fetch(`${apiBase}/api/detect/volc-image-aigc`, {
+        const res = await fetch(apiUrl("/api/detect/volc-image-aigc"), {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(body),
@@ -321,7 +320,7 @@ const FakeDetectPage = () => {
           heatmapUrl: previewUrl,
         };
       } else {
-        const res = await fetch(`${apiBase}/api/detect/universal-fake-detect`, {
+        const res = await fetch(apiUrl("/api/detect/universal-fake-detect"), {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(body),

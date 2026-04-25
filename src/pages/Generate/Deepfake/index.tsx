@@ -20,7 +20,7 @@ import {
 import { UploadOutlined, ThunderboltOutlined, DownloadOutlined } from "@ant-design/icons";
 import type { UploadFile } from "antd";
 import request from "@/utils/request";
-import { apiBase } from "@/utils/apiBase";
+import { apiUrl } from "@/utils/apiBase";
 
 const { Title, Paragraph } = Typography;
 const { TextArea } = Input;
@@ -136,7 +136,7 @@ const DeepfakeGeneratePage = () => {
           return;
         }
         // 火山引擎人像融合：传参对调后 template=目标图、image=驱动人脸，结果=目标图上换上驱动人脸
-        const res = await fetch(`${apiBase}/api/generate/faceswap`, {
+        const res = await fetch(apiUrl("/api/generate/faceswap"), {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -164,7 +164,7 @@ const DeepfakeGeneratePage = () => {
           return;
         }
         const prompt = (values.fommPrompt ?? "").trim() || "让图中人脸做自然的微笑和轻微点头动作";
-        const res = await fetch(`${apiBase}/api/generate/fomm`, {
+        const res = await fetch(apiUrl("/api/generate/fomm"), {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ imageBase64, prompt }),
@@ -194,7 +194,7 @@ const DeepfakeGeneratePage = () => {
           setLoading(false);
           return;
         }
-        const res = await fetch(`${apiBase}/api/generate/seededit`, {
+        const res = await fetch(apiUrl("/api/generate/seededit"), {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ prompt: editPrompt, imageBase64 }),

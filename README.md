@@ -38,13 +38,27 @@
 npm install
 ```
 
+### 配置本地火山接口
+
+```bash
+cp .env.example .env.local
+```
+
+在 `.env.local` 中填入火山方舟 API Key、视觉模型接入点以及视觉智能 AK/SK。注意不要把火山密钥写成 `VITE_` 前缀，`VITE_` 变量可能暴露给浏览器端代码。
+
 ### 启动开发服务器
 
 ```bash
 npm run dev
 ```
 
-应用将运行在 http://localhost:5173
+开发模式会同时启动 Vite 前端和本地 Node 代理：
+
+- 前端默认运行在 http://localhost:53177
+- 后端代理默认运行在 http://localhost:3001
+- 前端 `/api/*` 请求会代理到本地后端，再由后端携带密钥调用火山接口
+
+如果只需要离线演示，可将 `.env.development` 中的 `VITE_USE_MOCKS` 改为 `true`。
 
 ### 构建生产版本
 
@@ -89,9 +103,9 @@ aigc-security/
 
 ## 特性说明
 
-### Mock API
+### 真实接口与 Mock API
 
-暂时使用 MSW (Mock Service Worker) 拦截所有 API 请求，返回模拟数据。所有请求均不会发送到真实后端。
+默认开发模式走本地 Node 代理并调用真实火山接口。需要无网络、无密钥或答辩离线演示时，可设置 `VITE_USE_MOCKS=true` 启用本地 mock。mock 模式下请求不会发送到真实后端。
 
 Mock 接口列表：
 

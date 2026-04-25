@@ -23,6 +23,20 @@ const app = express();
 app.use(cors());
 app.use(express.json({ limit: "30mb" }));
 
+app.get("/api/health", (_req, res) => {
+  res.json({
+    ok: true,
+    proxy: "local-node",
+    volcArkApiKeyConfigured: !!VOLC_ARK_API_KEY,
+    volcArkVisionModelConfigured: !!VOLC_ARK_VISION_MODEL,
+    volcVisualKeyConfigured: !!(VOLC_ACCESS_KEY && VOLC_SECRET_KEY),
+    arkBase: VOLC_ARK_BASE,
+    imageModel: VOLC_ARK_IMAGE_MODEL,
+    t2vModel: VOLC_ARK_T2V_MODEL,
+    i2vModel: VOLC_ARK_I2V_MODEL,
+  });
+});
+
 /** 火山方舟图片理解：敏感内容检测（Chat 多模态 API）
  * @see https://www.volcengine.com/docs/82379/1362931
  * 需在控制台创建「支持视觉」的模型接入点，将 endpoint_id 配到 VOLC_ARK_VISION_MODEL

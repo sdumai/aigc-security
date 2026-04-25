@@ -1,6 +1,125 @@
 import { http, HttpResponse, delay } from "msw";
 
+const ok = <T extends Record<string, unknown>>(data: T) => HttpResponse.json(data);
+
 export const handlers = [
+  // 当前页面真实使用的 Deepfake/生成接口
+  http.post("/api/generate/faceswap", async () => {
+    await delay(800);
+    return ok({
+      imageUrl: "/mock/faceswap_hardcoded.png",
+      message: "人脸替换完成（本地 mock）",
+    });
+  }),
+
+  http.post("/api/generate/fomm", async () => {
+    await delay(900);
+    return ok({
+      videoUrl: "/mock/rabbit.mp4",
+      message: "人脸动画生成完成（本地 mock）",
+    });
+  }),
+
+  http.post("/api/generate/seededit", async () => {
+    await delay(800);
+    return ok({
+      imageUrl: "/mock/deepfake_result.jpg",
+      message: "属性编辑完成（本地 mock）",
+    });
+  }),
+
+  http.post("/api/generate/image-stable-diffusion", async () => {
+    await delay(900);
+    return ok({
+      imageUrl: "/mock/text2img_dog_running.jpg",
+      format: "url",
+      message: "Stable Diffusion 图像生成完成（本地 mock）",
+    });
+  }),
+
+  http.post("/api/generate/model-scope", async () => {
+    await delay(1000);
+    return ok({
+      videoUrl: "/mock/sample_video.mp4",
+      format: "url",
+      message: "ModelScope 文生视频完成（本地 mock）",
+    });
+  }),
+
+  http.post("/api/generate/t2v", async () => {
+    await delay(1000);
+    return ok({
+      videoUrl: "/mock/sample_video.mp4",
+      format: "url",
+      message: "文生视频完成（本地 mock）",
+    });
+  }),
+
+  http.post("/api/generate/i2v", async () => {
+    await delay(1000);
+    return ok({
+      videoUrl: "/mock/rabbit.mp4",
+      format: "url",
+      message: "图生视频完成（本地 mock）",
+    });
+  }),
+
+  // 当前页面真实使用的检测接口
+  http.post("/api/detect/volc-image-aigc", async () => {
+    await delay(700);
+    return ok({
+      isAIGenerated: true,
+      confidence: 0.86,
+      reason: "图像存在局部纹理过平滑、边缘细节不一致等 AI 生成特征（本地 mock）。",
+    });
+  }),
+
+  http.post("/api/detect/universal-fake-detect", async () => {
+    await delay(650);
+    return ok({
+      is_ai_generated: true,
+      score: 0.82,
+      threshold: 0.5,
+      arch: "CLIP ViT-L/14 + linear head",
+      message: "UniversalFakeDetect 判定为疑似 AI 生成图像（本地 mock）。",
+    });
+  }),
+
+  http.post("/api/detect/volc-video-aigc", async () => {
+    await delay(850);
+    return ok({
+      isFake: true,
+      confidence: 0.78,
+      model: "视频 AI 生成识别（本地 mock）",
+      heatmapUrl: "/mock/sample_video.mp4",
+      details: {
+        segmentRatio: 0.63,
+        segmentConclusion: "多个片段存在运动连续性异常和局部纹理闪烁。",
+        artifacts: ["运动轨迹不稳定", "帧间细节漂移", "局部纹理闪烁"],
+      },
+    });
+  }),
+
+  http.post("/api/detect/volc-ims", async () => {
+    await delay(650);
+    return ok({
+      safe: false,
+      suggestion: "review",
+      labels: ["violence", "sensitive"],
+      reason: "画面存在可能需要人工复核的风险元素（本地 mock）。",
+    });
+  }),
+
+  http.post("/api/detect/volc-video-ims", async () => {
+    await delay(850);
+    return ok({
+      safe: false,
+      suggestion: "review",
+      labels: ["violence"],
+      reason: "视频片段中存在疑似暴力动作，建议人工复核（本地 mock）。",
+    });
+  }),
+
   // Deepfake 人脸生成
   http.post("/api/generate/deepfake", async () => {
     await delay(1000); // 模拟网络延迟
@@ -15,12 +134,11 @@ export const handlers = [
   http.post("/api/generate/image", async ({ request }) => {
     await delay(1200);
     const body = (await request.json()) as { prompt?: string; size?: string };
-    // 开发环境返回占位图；生产环境应由后端调用第三方 API 后返回真实 imageUrl
-    const size = body?.size?.replace("x", "/") || "768/768";
     return HttpResponse.json({
       success: true,
-      imageUrl: `https://picsum.photos/seed/${encodeURIComponent(body?.prompt || "default")}/${size}`,
-      message: "图像生成成功",
+      imageUrl: "/mock/text2img_dog_running.jpg",
+      format: "url",
+      message: `图像生成成功（本地 mock）：${body?.prompt || "默认提示词"}`,
     });
   }),
 
@@ -127,8 +245,8 @@ export const handlers = [
           id: "1",
           type: "image",
           title: "Deepfake 人脸替换 - 名人效果",
-          thumbnailUrl: "https://picsum.photos/200/200?random=1",
-          fullUrl: "https://picsum.photos/800/800?random=1",
+          thumbnailUrl: "/mock/deepfake_result.jpg",
+          fullUrl: "/mock/deepfake_result.jpg",
           createdAt: "2024-12-06 14:30:22",
           size: "2.3 MB",
         },
@@ -136,8 +254,8 @@ export const handlers = [
           id: "2",
           type: "video",
           title: "AI 视频生成 - 未来城市",
-          thumbnailUrl: "https://picsum.photos/200/200?random=2",
-          fullUrl: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4",
+          thumbnailUrl: "/mock/text2img_dog_running.jpg",
+          fullUrl: "/mock/sample_video.mp4",
           createdAt: "2024-12-06 13:20:15",
           size: "15.7 MB",
         },
@@ -145,8 +263,8 @@ export const handlers = [
           id: "3",
           type: "image",
           title: "StarGAN 属性编辑 - 年龄变化",
-          thumbnailUrl: "https://picsum.photos/200/200?random=3",
-          fullUrl: "https://picsum.photos/800/800?random=3",
+          thumbnailUrl: "/mock/faceswap_hardcoded.png",
+          fullUrl: "/mock/faceswap_hardcoded.png",
           createdAt: "2024-12-06 12:10:45",
           size: "1.8 MB",
         },
@@ -154,8 +272,8 @@ export const handlers = [
           id: "4",
           type: "image",
           title: "FOMM 人脸动画 - 表情驱动",
-          thumbnailUrl: "https://picsum.photos/200/200?random=4",
-          fullUrl: "https://picsum.photos/800/800?random=4",
+          thumbnailUrl: "/mock/portrait_for_detection.jpg",
+          fullUrl: "/mock/rabbit.mp4",
           createdAt: "2024-12-06 11:05:30",
           size: "2.1 MB",
         },
@@ -163,8 +281,8 @@ export const handlers = [
           id: "5",
           type: "video",
           title: "Deepfake 视频合成 - 演讲场景",
-          thumbnailUrl: "https://picsum.photos/200/200?random=5",
-          fullUrl: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4",
+          thumbnailUrl: "/mock/fake_ai_image.jpg",
+          fullUrl: "/mock/sample_video.mp4",
           createdAt: "2024-12-05 16:45:20",
           size: "24.5 MB",
         },
@@ -172,8 +290,8 @@ export const handlers = [
           id: "6",
           type: "image",
           title: "AI 图像生成 - 科幻场景",
-          thumbnailUrl: "https://picsum.photos/200/200?random=6",
-          fullUrl: "https://picsum.photos/800/800?random=6",
+          thumbnailUrl: "/mock/text2img_dog_running.jpg",
+          fullUrl: "/mock/text2img_dog_running.jpg",
           createdAt: "2024-12-05 15:30:10",
           size: "3.2 MB",
         },
@@ -181,8 +299,8 @@ export const handlers = [
           id: "7",
           type: "image",
           title: "SimSwap 人脸交换 - 动漫风格",
-          thumbnailUrl: "https://picsum.photos/200/200?random=7",
-          fullUrl: "https://picsum.photos/800/800?random=7",
+          thumbnailUrl: "/mock/faceswap_hardcoded_backup.png",
+          fullUrl: "/mock/faceswap_hardcoded_backup.png",
           createdAt: "2024-12-05 10:15:33",
           size: "1.9 MB",
         },
@@ -190,8 +308,8 @@ export const handlers = [
           id: "8",
           type: "image",
           title: "FaceShifter 高清合成",
-          thumbnailUrl: "https://picsum.photos/200/200?random=8",
-          fullUrl: "https://picsum.photos/800/800?random=8",
+          thumbnailUrl: "/mock/deepfake_result.jpg",
+          fullUrl: "/mock/deepfake_result.jpg",
           createdAt: "2024-12-04 18:22:11",
           size: "4.1 MB",
         },
@@ -199,8 +317,8 @@ export const handlers = [
           id: "9",
           type: "video",
           title: "AI 视频 - 自然风光",
-          thumbnailUrl: "https://picsum.photos/200/200?random=9",
-          fullUrl: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4",
+          thumbnailUrl: "/mock/safe_nature.jpg",
+          fullUrl: "/mock/rabbit.mp4",
           createdAt: "2024-12-04 14:55:40",
           size: "18.3 MB",
         },
@@ -208,8 +326,8 @@ export const handlers = [
           id: "10",
           type: "image",
           title: "AI 图像生成 - 赛博朋克",
-          thumbnailUrl: "https://picsum.photos/200/200?random=10",
-          fullUrl: "https://picsum.photos/800/800?random=10",
+          thumbnailUrl: "/mock/fake_ai_image.jpg",
+          fullUrl: "/mock/fake_ai_image.jpg",
           createdAt: "2024-12-04 09:30:25",
           size: "2.7 MB",
         },
@@ -217,8 +335,8 @@ export const handlers = [
           id: "11",
           type: "image",
           title: "StarGAN 性别转换效果",
-          thumbnailUrl: "https://picsum.photos/200/200?random=11",
-          fullUrl: "https://picsum.photos/800/800?random=11",
+          thumbnailUrl: "/mock/portrait_for_detection.jpg",
+          fullUrl: "/mock/portrait_for_detection.jpg",
           createdAt: "2024-12-03 16:18:50",
           size: "2.5 MB",
         },
@@ -226,8 +344,8 @@ export const handlers = [
           id: "12",
           type: "image",
           title: "AI 艺术创作 - 抽象画",
-          thumbnailUrl: "https://picsum.photos/200/200?random=12",
-          fullUrl: "https://picsum.photos/800/800?random=12",
+          thumbnailUrl: "/mock/heatmap.png",
+          fullUrl: "/mock/heatmap.png",
           createdAt: "2024-12-03 11:42:15",
           size: "3.8 MB",
         },

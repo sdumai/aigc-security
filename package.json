@@ -4,7 +4,8 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "concurrently -n frontend,backend -c blue,green \"vite\" \"node server/index.cjs\"",
+    "dev:frontend": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "dev:proxy": "node server/index.cjs",
