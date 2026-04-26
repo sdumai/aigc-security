@@ -16,7 +16,7 @@ import {
   List,
   Input,
   Tabs,
-  Checkbox,
+  Select,
 } from "antd";
 import { apiBase } from "@/utils/apiBase";
 import {
@@ -38,10 +38,10 @@ const { Dragger } = Upload;
 
 // 可选的检测模型
 const SAFETY_DETECTION_MODELS = [
-  { value: "Google-SafeSearch", label: "Google SafeSearch", description: "Google 安全搜索API，检测不适宜内容" },
-  { value: "AWS-Rekognition", label: "AWS Rekognition", description: "Amazon 图像审核服务" },
-  { value: "Azure-ContentModerator", label: "Azure Content Moderator", description: "微软内容审核服务" },
-  { value: "NSFW-Detector", label: "NSFW Detector", description: "开源的NSFW内容检测模型" },
+  { value: "Google-SafeSearch", label: "Google SafeSearch" },
+  { value: "AWS-Rekognition", label: "AWS Rekognition" },
+  { value: "Azure-ContentModerator", label: "Azure Content Moderator" },
+  { value: "NSFW-Detector", label: "NSFW Detector" },
 ];
 
 type RiskLevel = "low" | "medium" | "high";
@@ -558,120 +558,93 @@ ${result.suggestions.map((s, i) => `${i + 1}. ${s}`).join("\n")}
                       ]}
                     />
 
-                    {/* 步骤2：两栏布局 - 左侧图片预览+操作，右侧选择检测模型/API（与虚假内容检测一致） */}
+                    {/* 步骤2：上传预览、模型选择、操作按钮纵向排列 */}
                     {contentKind === "image" && currentStep === 2 && uploadedFile && previewUrl && !result && (
-                      <Row gutter={24} style={{ marginTop: 20 }} align="stretch">
-                        <Col xs={24} md={12}>
-                          <div
-                            style={{
-                              minHeight: 260,
-                              maxHeight: 360,
-                              borderRadius: 12,
-                              overflow: "hidden",
-                              background: "linear-gradient(145deg, #f8f9fa 0%, #f1f3f5 100%)",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              padding: 12,
-                              border: "1px solid #e9ecef",
-                            }}
-                          >
-                            <div className="image-preview-wrap" style={{ maxWidth: "100%", maxHeight: 336 }}>
-                              <Image
-                                src={previewUrl}
-                                alt="待检测图片"
-                                style={{
-                                  maxWidth: "100%",
-                                  maxHeight: 336,
-                                  objectFit: "contain",
-                                  borderRadius: 8,
-                                }}
-                                preview={{ mask: null }}
-                              />
-                              <div className="image-preview-mask">
-                                <EyeOutlined style={{ fontSize: 24 }} />
-                                <span>预览</span>
-                              </div>
+                      <Space direction="vertical" size={16} style={{ width: "100%", marginTop: 20 }}>
+                        <div
+                          style={{
+                            minHeight: 260,
+                            maxHeight: 360,
+                            borderRadius: 12,
+                            overflow: "hidden",
+                            background: "linear-gradient(145deg, #f8f9fa 0%, #f1f3f5 100%)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            padding: 12,
+                            border: "1px solid #e9ecef",
+                          }}
+                        >
+                          <div className="image-preview-wrap" style={{ maxWidth: "100%", maxHeight: 336 }}>
+                            <Image
+                              src={previewUrl}
+                              alt="待检测图片"
+                              style={{
+                                maxWidth: "100%",
+                                maxHeight: 336,
+                                objectFit: "contain",
+                                borderRadius: 8,
+                              }}
+                              preview={{ mask: null }}
+                            />
+                            <div className="image-preview-mask">
+                              <EyeOutlined style={{ fontSize: 24 }} />
+                              <span>预览</span>
                             </div>
                           </div>
-                          <Space direction="vertical" style={{ width: "100%", marginTop: 16 }} size={12}>
-                            <Button
-                              type="primary"
-                              size="large"
-                              block
-                              icon={<SafetyOutlined />}
-                              onClick={handleDetect}
-                              loading={loading}
-                              disabled={loading || selectedModels.length === 0}
-                              style={{ height: 44, borderRadius: 8 }}
-                            >
-                              {loading ? "检测中..." : `使用 ${selectedModels.length} 个模型开始检测`}
-                            </Button>
-                            <Button
-                              block
-                              icon={<UploadOutlined />}
-                              onClick={resetDetection}
-                              disabled={loading}
-                              style={{ borderRadius: 8 }}
-                            >
-                              重新上传
-                            </Button>
-                          </Space>
-                        </Col>
-                        <Col xs={24} md={12}>
-                          <Card
-                            title="选择检测模型/API"
-                            size="small"
-                            bordered={false}
-                            style={{
-                              height: "100%",
-                              minHeight: 260,
-                              borderRadius: 12,
-                              background: "#fafbfc",
-                              border: "1px solid #e9ecef",
-                              boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
-                            }}
-                            bodyStyle={{ padding: "16px 20px" }}
+                        </div>
+                        <Card
+                          title="选择检测模型/API"
+                          size="small"
+                          bordered={false}
+                          style={{
+                            borderRadius: 12,
+                            background: "#fafbfc",
+                            border: "1px solid #e9ecef",
+                            boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
+                          }}
+                          bodyStyle={{ padding: "16px 20px" }}
+                        >
+                          <Select
+                            mode="multiple"
+                            size="large"
+                            value={selectedModels}
+                            onChange={setSelectedModels}
+                            optionLabelProp="label"
+                            placeholder="请选择检测模型/API"
+                            style={{ width: "100%" }}
                           >
-                            <Paragraph style={{ marginBottom: 16, fontSize: 13, color: "#5c6b7a" }}>
-                              使用多模态图片理解进行敏感内容检测，选择一个或多个模型综合分析
-                            </Paragraph>
-                            <Checkbox.Group
-                              value={selectedModels}
-                              onChange={(checkedValues) => setSelectedModels(checkedValues as string[])}
-                              style={{ width: "100%" }}
-                            >
-                              <Space direction="vertical" size={12} style={{ width: "100%" }}>
-                                {SAFETY_DETECTION_MODELS.map((model) => (
-                                  <Card
-                                    key={model.value}
-                                    size="small"
-                                    hoverable
-                                    style={{
-                                      marginBottom: 0,
-                                      borderRadius: 8,
-                                      border: "1px solid #e9ecef",
-                                      transition: "border-color 0.2s, box-shadow 0.2s",
-                                    }}
-                                  >
-                                    <Checkbox value={model.value} style={{ width: "100%", alignItems: "flex-start" }}>
-                                      <div style={{ paddingLeft: 4 }}>
-                                        <Text strong style={{ fontSize: 14 }}>
-                                          {model.label}
-                                        </Text>
-                                        <br />
-                                        <Text type="secondary" style={{ fontSize: 12, lineHeight: 1.5 }}>
-                                          {model.description}
-                                        </Text>
-                                      </div>
-                                    </Checkbox>
-                                  </Card>
-                                ))}
-                              </Space>
-                            </Checkbox.Group>
-                          </Card>
-                        </Col>
-                      </Row>
+                            {SAFETY_DETECTION_MODELS.map((model) => (
+                              <Select.Option key={model.value} value={model.value} label={model.label}>
+                                {model.label}
+                              </Select.Option>
+                            ))}
+                          </Select>
+                        </Card>
+                        <Space direction="vertical" style={{ width: "100%" }} size={12}>
+                          <Button
+                            type="primary"
+                            size="large"
+                            block
+                            icon={<SafetyOutlined />}
+                            onClick={handleDetect}
+                            loading={loading}
+                            disabled={loading || selectedModels.length === 0}
+                            style={{ height: 44, borderRadius: 8 }}
+                          >
+                            {loading ? "检测中..." : `使用 ${selectedModels.length} 个模型开始检测`}
+                          </Button>
+                          <Button
+                            block
+                            icon={<UploadOutlined />}
+                            onClick={resetDetection}
+                            disabled={loading}
+                            style={{ borderRadius: 8 }}
+                          >
+                            重新上传
+                          </Button>
+                        </Space>
+                      </Space>
                     )}
 
                     {/* 已有结果或非步骤2时：显示重新检测/重新上传 */}

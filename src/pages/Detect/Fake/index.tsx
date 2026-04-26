@@ -15,7 +15,7 @@ import {
   Button,
   Input,
   Tabs,
-  Radio,
+  Select,
 } from "antd";
 import {
   UploadOutlined,
@@ -36,13 +36,11 @@ const { Dragger } = Upload;
 const IMAGE_DETECT_BACKENDS = [
   {
     value: "volc",
-    label: "火山引擎",
-    description: "方舟多模态图片理解，返回 isAIGenerated / confidence / reason",
+    label: "Seed-2.0-pro",
   },
   {
     value: "universal",
-    label: "UniversalFakeDetect",
-    description: "通用伪造检测（CLIP），返回 is_ai_generated / score / message 等",
+    label: "Universal-Fake-Detect",
   },
 ] as const;
 
@@ -574,122 +572,95 @@ const FakeDetectPage = () => {
                       ]}
                     />
 
-                    {/* 步骤2：左右布局 - 左侧图片预览，右侧方法选择 */}
+                    {/* 步骤2：上传预览、模型选择、操作按钮纵向排列 */}
                     {currentStep === 2 && uploadedFile && previewUrl && !result && (
-                      <Row gutter={24} style={{ marginTop: 20 }} align="stretch">
-                        <Col xs={24} md={12}>
-                          <div
-                            style={{
-                              minHeight: 260,
-                              maxHeight: 360,
-                              borderRadius: 12,
-                              overflow: "hidden",
-                              background: "linear-gradient(145deg, #f8f9fa 0%, #f1f3f5 100%)",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              padding: 12,
-                              border: "1px solid #e9ecef",
-                            }}
-                          >
-                            <div className="image-preview-wrap" style={{ maxWidth: "100%", maxHeight: 336 }}>
-                              <Image
-                                src={previewUrl}
-                                alt="待检测图片"
-                                style={{
-                                  maxWidth: "100%",
-                                  maxHeight: 336,
-                                  objectFit: "contain",
-                                  borderRadius: 8,
-                                }}
-                                preview={{ mask: null }}
-                              />
-                              <div className="image-preview-mask">
-                                <EyeOutlined style={{ fontSize: 24 }} />
-                                <span>预览</span>
-                              </div>
+                      <Space direction="vertical" size={16} style={{ width: "100%", marginTop: 20 }}>
+                        <div
+                          style={{
+                            minHeight: 260,
+                            maxHeight: 360,
+                            borderRadius: 12,
+                            overflow: "hidden",
+                            background: "linear-gradient(145deg, #f8f9fa 0%, #f1f3f5 100%)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            padding: 12,
+                            border: "1px solid #e9ecef",
+                          }}
+                        >
+                          <div className="image-preview-wrap" style={{ maxWidth: "100%", maxHeight: 336 }}>
+                            <Image
+                              src={previewUrl}
+                              alt="待检测图片"
+                              style={{
+                                maxWidth: "100%",
+                                maxHeight: 336,
+                                objectFit: "contain",
+                                borderRadius: 8,
+                              }}
+                              preview={{ mask: null }}
+                            />
+                            <div className="image-preview-mask">
+                              <EyeOutlined style={{ fontSize: 24 }} />
+                              <span>预览</span>
                             </div>
                           </div>
-                          <Space direction="vertical" style={{ width: "100%", marginTop: 16 }} size={12}>
-                            <Button
-                              type="primary"
-                              size="large"
-                              block
-                              icon={<ScanOutlined />}
-                              onClick={handleDetect}
-                              loading={loading}
-                              disabled={loading}
-                              style={{ height: 44, borderRadius: 8 }}
-                            >
-                              {loading
-                                ? "检测中..."
-                                : `开始检测（${
-                                    IMAGE_DETECT_BACKENDS.find((b) => b.value === imageDetectBackend)?.label ?? ""
-                                  }）`}
-                            </Button>
-                            <Button
-                              block
-                              icon={<UploadOutlined />}
-                              onClick={resetDetection}
-                              disabled={loading}
-                              style={{ borderRadius: 8 }}
-                            >
-                              重新上传
-                            </Button>
-                          </Space>
-                        </Col>
-                        <Col xs={24} md={12}>
-                          <Card
-                            title="选择检测模型"
-                            size="small"
-                            bordered={false}
-                            style={{
-                              height: "100%",
-                              minHeight: 260,
-                              borderRadius: 12,
-                              background: "#fafbfc",
-                              border: "1px solid #e9ecef",
-                              boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
-                            }}
-                            bodyStyle={{ padding: "16px 20px" }}
+                        </div>
+                        <Card
+                          title="选择检测模型"
+                          size="small"
+                          bordered={false}
+                          style={{
+                            borderRadius: 12,
+                            background: "#fafbfc",
+                            border: "1px solid #e9ecef",
+                            boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
+                          }}
+                          bodyStyle={{ padding: "16px 20px" }}
+                        >
+                          <Select
+                            size="large"
+                            value={imageDetectBackend}
+                            onChange={(value) => setImageDetectBackend(value as ImageDetectBackend)}
+                            optionLabelProp="label"
+                            style={{ width: "100%" }}
                           >
-
-                            <Radio.Group
-                              value={imageDetectBackend}
-                              onChange={(e) => setImageDetectBackend(e.target.value as ImageDetectBackend)}
-                              style={{ width: "100%" }}
-                            >
-                              <Space direction="vertical" size={12} style={{ width: "100%" }}>
-                                {IMAGE_DETECT_BACKENDS.map((model) => (
-                                  <Card
-                                    key={model.value}
-                                    size="small"
-                                    hoverable
-                                    style={{
-                                      marginBottom: 0,
-                                      borderRadius: 8,
-                                      border: "1px solid #e9ecef",
-                                      transition: "border-color 0.2s, box-shadow 0.2s",
-                                    }}
-                                  >
-                                    <Radio value={model.value} style={{ width: "100%", alignItems: "flex-start" }}>
-                                      <div style={{ paddingLeft: 4 }}>
-                                        <Text strong style={{ fontSize: 14 }}>
-                                          {model.label}
-                                        </Text>
-                                        <br />
-                                        <Text type="secondary" style={{ fontSize: 12, lineHeight: 1.5 }}>
-                                          {model.description}
-                                        </Text>
-                                      </div>
-                                    </Radio>
-                                  </Card>
-                                ))}
-                              </Space>
-                            </Radio.Group>
-                          </Card>
-                        </Col>
-                      </Row>
+                            {IMAGE_DETECT_BACKENDS.map((model) => (
+                              <Select.Option key={model.value} value={model.value} label={model.label}>
+                                {model.label}
+                              </Select.Option>
+                            ))}
+                          </Select>
+                        </Card>
+                        <Space direction="vertical" style={{ width: "100%" }} size={12}>
+                          <Button
+                            type="primary"
+                            size="large"
+                            block
+                            icon={<ScanOutlined />}
+                            onClick={handleDetect}
+                            loading={loading}
+                            disabled={loading}
+                            style={{ height: 44, borderRadius: 8 }}
+                          >
+                            {loading
+                              ? "检测中..."
+                              : `开始检测（${
+                                  IMAGE_DETECT_BACKENDS.find((b) => b.value === imageDetectBackend)?.label ?? ""
+                                }）`}
+                          </Button>
+                          <Button
+                            block
+                            icon={<UploadOutlined />}
+                            onClick={resetDetection}
+                            disabled={loading}
+                            style={{ borderRadius: 8 }}
+                          >
+                            重新上传
+                          </Button>
+                        </Space>
+                      </Space>
                     )}
 
                     {/* 步骤3 或有结果时：全宽图片 + 按钮 */}

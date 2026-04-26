@@ -62,8 +62,8 @@ function normalizeVideoUrlFromApi(raw: string): string {
 }
 
 const VIDEO_MODEL_OPTIONS = [
-  { value: "volc", label: "火山引擎（方舟）", endpoint: "/api/generate/t2v" },
-  { value: "modelscope", label: "ModelScope（自托管文生视频）", endpoint: "/api/generate/model-scope" },
+  { value: "volc", label: "Seedance-1-0-lite-t2v", endpoint: "/api/generate/t2v" },
+  { value: "modelscope", label: "Model-Scope", endpoint: "/api/generate/model-scope" },
 ] as const;
 
 interface VideoResult {
