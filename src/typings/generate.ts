@@ -8,16 +8,13 @@ export type TDeepfakeFunction = "faceswap" | "fomm" | "stargan";
 
 export type TFaceSwapModel = "Volc FaceSwap 2.0" | "Volc FaceSwap 3.6";
 
-export type TDeepfakeModel =
-  | TFaceSwapModel
-  | "FOMM"
-  | "Face2Face"
-  | "Wav2Lip"
-  | "LivePortrait"
-  | "StarGAN"
-  | "StarGAN-v2"
-  | "AttGAN"
-  | "STGAN";
+export type TFaceAnimationModel = "Seedance Lite I2V";
+
+export type TAttributeEditModel = "SeedEdit 3.0";
+
+export type TDeepfakeModel = TFaceSwapModel | TFaceAnimationModel | TAttributeEditModel;
+
+export type TSeedEditSeedMode = "random" | "fixed";
 
 export type TImageModel = "volc" | "stable-diffusion";
 
@@ -63,6 +60,9 @@ export interface IDeepfakeFormValues {
   model: TDeepfakeModel;
   fommPrompt?: string;
   editPrompt?: string;
+  seedEditScale?: number;
+  seedEditSeedMode?: TSeedEditSeedMode;
+  seedEditSeed?: number;
 }
 
 export interface ITextToImageFormValues {

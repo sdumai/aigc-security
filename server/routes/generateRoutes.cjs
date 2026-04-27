@@ -162,12 +162,24 @@ function registerFaceSwapV36Route(app) {
   });
 }
 
-function buildSeedEditSubmitBody({ prompt, imageInput }) {
+function normalizeSeedEditScale(scale) {
+  const numericScale = Number(scale);
+  if (!Number.isFinite(numericScale)) return VOLC_VISUAL.SEEDEDIT_DEFAULT_SCALE;
+  return Math.min(VOLC_VISUAL.SEEDEDIT_MAX_SCALE, Math.max(VOLC_VISUAL.SEEDEDIT_MIN_SCALE, numericScale));
+}
+
+function normalizeSeedEditSeed(seed) {
+  const numericSeed = Number(seed);
+  if (!Number.isFinite(numericSeed)) return VOLC_VISUAL.SEEDEDIT_DEFAULT_SEED;
+  return Math.min(VOLC_VISUAL.SEEDEDIT_MAX_SEED, Math.max(VOLC_VISUAL.SEEDEDIT_MIN_SEED, Math.round(numericSeed)));
+}
+
+function buildSeedEditSubmitBody({ prompt, imageInput, seed, scale }) {
   const submitBody = {
     req_key: VOLC_VISUAL.SEEDEDIT_REQ_KEY,
     prompt,
-    seed: VOLC_VISUAL.SEEDEDIT_DEFAULT_SEED,
-    scale: VOLC_VISUAL.SEEDEDIT_DEFAULT_SCALE,
+    seed: normalizeSeedEditSeed(seed),
+    scale: normalizeSeedEditScale(scale),
   };
 
   if (/^https?:\/\//i.test(imageInput)) {
@@ -231,7 +243,7 @@ function registerSeedEditRoute(app) {
     try {
       if (requireVolcCredentials(res, "请配置 VOLC_ACCESS_KEY 与 VOLC_SECRET_KEY（与人脸融合相同）")) return;
 
-      const { prompt, imageUrl, imageBase64 } = req.body || {};
+      const { prompt, imageUrl, imageBase64, seed, scale } = req.body || {};
       const editPrompt = typeof prompt === "string" ? prompt.trim() : "";
       if (!editPrompt) {
         return sendBadRequest(res, "需要 prompt（编辑指令）");
@@ -247,7 +259,7 @@ function registerSeedEditRoute(app) {
 
       const submitRes = await visualCvRequest(
         VOLC_VISUAL.SEEDEDIT_SUBMIT_ACTION,
-        buildSeedEditSubmitBody({ prompt: editPrompt, imageInput }),
+        buildSeedEditSubmitBody({ prompt: editPrompt, imageInput, seed, scale }),
       );
       if (!submitRes.ok) {
         const message = submitRes.message || "提交任务失败";

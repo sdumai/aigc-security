@@ -37,6 +37,8 @@ export interface IFaceAnimationGenerateParams {
 export interface ISeedEditGenerateParams {
   imageBase64: string;
   prompt: string;
+  scale?: number;
+  seed?: number;
 }
 
 export interface ITextToImageGenerateParams {

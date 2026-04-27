@@ -1,5 +1,5 @@
 import { Button, Card, Image, Space, Spin, Typography } from "antd";
-import { DownloadOutlined } from "@ant-design/icons";
+import { DownloadOutlined, ReloadOutlined, SaveOutlined } from "@ant-design/icons";
 import type { ReactNode } from "react";
 
 import {
@@ -30,6 +30,7 @@ export interface IMediaResultCardProps {
   imageWidth?: string;
   videoTitle?: string;
   videoSrc?: string | null;
+  className?: string;
   onDownload: () => void;
   onSave: () => void;
   onReset: () => void;
@@ -46,6 +47,7 @@ export const MediaResultCard = ({
   imageWidth = MEDIA_RESULT_IMAGE_WIDTH,
   videoTitle,
   videoSrc,
+  className,
   onDownload,
   onSave,
   onReset,
@@ -53,46 +55,51 @@ export const MediaResultCard = ({
   const currentVideoSrc = videoSrc || result?.videoUrl || "";
 
   return (
-    <Card title={title} bordered={false}>
+    <Card title={title} bordered={false} className={className}>
       {loading ? (
-        <div style={{ textAlign: "center", padding: LOADING_STATE_PADDING }}>
+        <div className="media-result-loading" style={{ textAlign: "center", padding: LOADING_STATE_PADDING }}>
           <Spin size="large" />
           <Paragraph style={{ marginTop: DEFAULT_SPACE_SIZE, color: SECONDARY_TEXT_COLOR }}>{loadingText}</Paragraph>
         </div>
       ) : result ? (
-        <div>
-          {result.videoUrl ? (
-            <video
-              key={currentVideoSrc}
-              src={currentVideoSrc}
-              controls
-              title={videoTitle}
-              style={{ width: FULL_WIDTH, borderRadius: DEFAULT_BORDER_RADIUS }}
-            >
-              您的浏览器不支持视频播放
-            </video>
-          ) : result.imageUrl ? (
-            <Image
-              src={result.imageUrl}
-              alt={imageAlt}
-              style={{ width: imageWidth, borderRadius: DEFAULT_BORDER_RADIUS }}
-              fallback="https://via.placeholder.com/512x512?text=Generated+Result"
-            />
-          ) : null}
-          <Space style={{ marginTop: DEFAULT_SPACE_SIZE, width: FULL_WIDTH }} direction="vertical">
+        <div className="media-result-content">
+          <div className="media-result-preview-shell">
+            <div className="media-result-preview-surface">
+              {result.videoUrl ? (
+                <video
+                  key={currentVideoSrc}
+                  src={currentVideoSrc}
+                  controls
+                  title={videoTitle}
+                  style={{ width: FULL_WIDTH, borderRadius: DEFAULT_BORDER_RADIUS }}
+                >
+                  您的浏览器不支持视频播放
+                </video>
+              ) : result.imageUrl ? (
+                <Image
+                  src={result.imageUrl}
+                  alt={imageAlt}
+                  style={{ width: imageWidth, borderRadius: DEFAULT_BORDER_RADIUS }}
+                  fallback="https://via.placeholder.com/512x512?text=Generated+Result"
+                />
+              ) : null}
+            </div>
+          </div>
+          <Space className="media-result-actions" style={{ marginTop: DEFAULT_SPACE_SIZE, width: FULL_WIDTH }} direction="vertical">
             <Button type="primary" block icon={<DownloadOutlined />} onClick={onDownload}>
               下载到本地
             </Button>
-            <Button block onClick={onSave}>
+            <Button block icon={<SaveOutlined />} onClick={onSave}>
               保存到内容管理
             </Button>
-            <Button block onClick={onReset}>
+            <Button block icon={<ReloadOutlined />} onClick={onReset}>
               重新生成
             </Button>
           </Space>
         </div>
       ) : (
         <div
+          className="media-result-empty"
           style={{
             textAlign: "center",
             padding: EMPTY_STATE_PADDING,

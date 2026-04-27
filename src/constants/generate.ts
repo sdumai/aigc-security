@@ -1,10 +1,13 @@
 import type {
   IModelOption,
   ISelectOption,
+  TAttributeEditModel,
   TDeepfakeFunction,
   TDeepfakeModel,
+  TFaceAnimationModel,
   TFaceSwapModel,
   TImageModel,
+  TSeedEditSeedMode,
   TVideoModel,
 } from "@/typings/generate";
 
@@ -13,6 +16,10 @@ export const DEEPFAKE_DEFAULT_FUNCTION: TDeepfakeFunction = "faceswap";
 export const FACE_SWAP_MODEL_V2: TFaceSwapModel = "Volc FaceSwap 2.0";
 
 export const FACE_SWAP_MODEL_V36: TFaceSwapModel = "Volc FaceSwap 3.6";
+
+export const FACE_ANIMATION_MODEL: TFaceAnimationModel = "Seedance Lite I2V";
+
+export const ATTRIBUTE_EDIT_MODEL: TAttributeEditModel = "SeedEdit 3.0";
 
 export const DEEPFAKE_DEFAULT_MODEL: TDeepfakeModel = FACE_SWAP_MODEL_V2;
 
@@ -27,6 +34,15 @@ export const DEFAULT_MODELSCOPE_FRAMES = "16";
 export const DEFAULT_MODELSCOPE_STEPS = "25";
 export const DEFAULT_MODELSCOPE_FRAME_COUNT = 16;
 export const DEFAULT_MODELSCOPE_INFERENCE_STEPS = 25;
+export const DEFAULT_SEEDEDIT_SCALE = 0.5;
+export const MIN_SEEDEDIT_SCALE = 0;
+export const MAX_SEEDEDIT_SCALE = 1;
+export const SEEDEDIT_SCALE_STEP = 0.05;
+export const DEFAULT_SEEDEDIT_SEED_MODE: TSeedEditSeedMode = "random";
+export const DEFAULT_SEEDEDIT_SEED = 12345;
+export const RANDOM_SEEDEDIT_SEED = -1;
+export const MIN_SEEDEDIT_SEED = 0;
+export const MAX_SEEDEDIT_SEED = 2147483647;
 export const SHORT_TEXTAREA_ROWS = 2;
 export const MEDIUM_TEXTAREA_ROWS = 3;
 export const DEFAULT_TEXTAREA_ROWS = 4;
@@ -61,8 +77,8 @@ export const I2V_UPLOAD_TEXT = `上传参考图（1～${I2V_MAX_IMAGE_COUNT} 张
 
 export const DEEPFAKE_MODEL_OPTIONS: Record<TDeepfakeFunction, TDeepfakeModel[]> = {
   faceswap: [FACE_SWAP_MODEL_V2, FACE_SWAP_MODEL_V36],
-  fomm: ["FOMM", "Face2Face", "Wav2Lip", "LivePortrait"],
-  stargan: ["StarGAN", "StarGAN-v2", "AttGAN", "STGAN"],
+  fomm: [FACE_ANIMATION_MODEL],
+  stargan: [ATTRIBUTE_EDIT_MODEL],
 };
 
 export const FACE_SWAP_MODEL_INTROS: Array<{
@@ -99,8 +115,13 @@ export const DEEPFAKE_FUNCTION_LABELS: Record<TDeepfakeFunction, string> = {
 
 export const DEEPFAKE_FUNCTION_OPTIONS: ISelectOption<TDeepfakeFunction>[] = [
   { value: "faceswap", label: "人脸替换（Face Swapping）" },
-  { value: "fomm", label: "人脸动画（Face Reenactment）" },
   { value: "stargan", label: "属性编辑（Attribute Editing）" },
+  { value: "fomm", label: "人脸动画（Face Reenactment）" },
+];
+
+export const SEEDEDIT_SEED_MODE_OPTIONS: ISelectOption<TSeedEditSeedMode>[] = [
+  { value: "random", label: "随机生成" },
+  { value: "fixed", label: "固定复现" },
 ];
 
 export const DEEPFAKE_TARGET_TOOLTIPS: Record<TDeepfakeFunction, string> = {
@@ -120,7 +141,7 @@ export const IMAGE_MODEL_OPTIONS: IModelOption<TImageModel>[] = [
 
 export const VIDEO_MODEL_OPTIONS: IModelOption<TVideoModel>[] = [
   { value: "volc", label: "Seedance-1-0-lite-t2v", endpoint: "/api/generate/t2v" },
-  { value: "modelscope", label: "Model-Scope", endpoint: "/api/generate/model-scope" },
+  { value: "modelscope", label: "Model Scope", endpoint: "/api/generate/model-scope" },
 ];
 
 export const IMAGE_SIZE_OPTIONS: ISelectOption[] = [

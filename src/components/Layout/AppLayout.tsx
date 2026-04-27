@@ -5,12 +5,14 @@ import {
   ThunderboltOutlined,
   ScanOutlined,
   DatabaseOutlined,
+  SafetyOutlined,
   UserOutlined,
   VideoCameraOutlined,
-  SafetyOutlined,
   WarningOutlined,
 } from "@ant-design/icons";
 import type { MenuProps } from "antd";
+
+import { DScanLogoMark } from "@/components/common/DScanLogoMark";
 
 const { Header, Sider, Content } = Layout;
 
@@ -78,58 +80,16 @@ const AppLayout = ({ children }: AppLayoutProps) => {
       <Header
         className="app-header"
         style={{
-          padding: "0 40px",
-          height: 60,
           position: "sticky",
           top: 0,
           zIndex: 10,
         }}
       >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 12,
-            cursor: "pointer",
-            flex: "0 0 auto",
-          }}
-          onClick={() => navigate("/")}
-        >
-          <div
-            style={{
-              background: "rgba(255, 255, 255, 0.12)",
-              borderRadius: 8,
-              padding: 8,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <SafetyOutlined style={{ fontSize: 22, color: "white" }} />
-          </div>
+        <div className="app-brand" onClick={() => navigate("/")}>
+          <DScanLogoMark className="app-brand-mark" />
           <div>
-            <div
-              style={{
-                color: "white",
-                fontSize: 17,
-                fontWeight: 600,
-                lineHeight: 1.25,
-                fontFamily: "var(--font-heading)",
-              }}
-            >
-              AIGC 安全研究平台
-            </div>
-            <div
-              style={{
-                color: "rgba(255, 255, 255, 0.78)",
-                fontSize: 11,
-                lineHeight: 1.25,
-                marginTop: 2,
-                letterSpacing: "0.02em",
-              }}
-            >
-              AI Generated Content Security Research
-            </div>
+            <div className="app-brand-title">DScan</div>
+            <div className="app-brand-subtitle">AIGC 安全检测与研究平台</div>
           </div>
         </div>
         <div className="app-header-right">
@@ -141,7 +101,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
         </div>
       </Header>
       <Layout style={{ flex: 1, minHeight: 0 }}>
-        <Sider width={250} className="app-sider" style={{ overflow: "auto" }}>
+        <Sider width={250} className="app-sider">
           <Menu
             mode="inline"
             selectedKeys={getSelectedKeys()}
@@ -151,7 +111,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
             style={{ height: "100%", borderRight: 0 }}
           />
         </Sider>
-        <Layout className="app-content-wrap" style={{ padding: "0 16px 16px" }}>
+        <Layout className="app-content-wrap">
           <Content className="app-content">{children}</Content>
         </Layout>
       </Layout>

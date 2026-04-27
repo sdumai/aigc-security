@@ -178,7 +178,7 @@ const DataOutputPage = () => {
   const outputsTab = (
     <div>
       <Paragraph type="secondary" style={{ marginBottom: 16 }}>
-        展示所有通过平台生成的图像和视频内容，支持预览、下载和批量导出。
+        展示所有通过 DScan 生成的图像和视频内容，支持预览、下载和批量导出。
       </Paragraph>
 
       {loading ? (
@@ -303,7 +303,7 @@ const DataOutputPage = () => {
           内容与检测记录管理
         </Title>
         <Paragraph className="page-description">
-          集中管理平台内所有生成产物与检测记录，支持按类型筛选、预览、单条/批量下载及元数据查看与导出。
+          集中管理 DScan 内所有生成产物与检测记录，支持按类型筛选、预览、单条/批量下载及元数据查看与导出。
         </Paragraph>
       </div>
 

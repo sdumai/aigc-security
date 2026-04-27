@@ -144,7 +144,7 @@ export const handlers = [
         {
           id: "3",
           type: "image",
-          title: "StarGAN 属性编辑 - 年龄变化",
+          title: "SeedEdit 3.0 属性编辑 - 年龄变化",
           thumbnailUrl: "https://picsum.photos/200/200?random=3",
           fullUrl: "https://picsum.photos/800/800?random=3",
           createdAt: "2024-12-06 12:10:45",
@@ -153,7 +153,7 @@ export const handlers = [
         {
           id: "4",
           type: "image",
-          title: "FOMM 人脸动画 - 表情驱动",
+          title: "Seedance Lite I2V 人脸动画 - 表情驱动",
           thumbnailUrl: "https://picsum.photos/200/200?random=4",
           fullUrl: "https://picsum.photos/800/800?random=4",
           createdAt: "2024-12-06 11:05:30",
@@ -216,7 +216,7 @@ export const handlers = [
         {
           id: "11",
           type: "image",
-          title: "StarGAN 性别转换效果",
+          title: "SeedEdit 3.0 性别转换效果",
           thumbnailUrl: "https://picsum.photos/200/200?random=11",
           fullUrl: "https://picsum.photos/800/800?random=11",
           createdAt: "2024-12-03 16:18:50",

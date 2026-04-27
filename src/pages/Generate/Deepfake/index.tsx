@@ -7,9 +7,10 @@ import {
   DEEPFAKE_DEFAULT_FUNCTION,
   DEEPFAKE_DEFAULT_MODEL,
   DEEPFAKE_FUNCTION_LABELS,
+  DEFAULT_SEEDEDIT_SCALE,
   EMPTY_UPLOAD_COUNT,
-  FACE_ANIMATION_DEFAULT_PROMPT,
   PRIMARY_UPLOAD_INDEX,
+  RANDOM_SEEDEDIT_SEED,
 } from "@/constants/generate";
 import { DATA_OUTPUT_ROUTE } from "@/constants/routes";
 import {
@@ -17,7 +18,6 @@ import {
   DEEPFAKE_RESULT_IMAGE_WIDTH,
   DEEPFAKE_CONFIG_LG_SPAN,
   DEEPFAKE_RESULT_LG_SPAN,
-  GRID_GUTTER,
   MESSAGE_DURATION_SECONDS,
   MESSAGE_LOADING_DURATION_FOREVER,
   SAVE_NAVIGATION_DELAY_MS,
@@ -36,6 +36,9 @@ import type { IDeepfakeFormValues, IGenerateResult, TDeepfakeFunction } from "@/
 import { downloadMedia, getBase64FromUploadFile, getUploadPreviewUrl } from "@/utils/media";
 
 const { Title, Paragraph } = Typography;
+
+const isFormValidationError = (error: unknown): error is { errorFields: unknown[] } =>
+  typeof error === "object" && error !== null && "errorFields" in error;
 
 const DeepfakeGeneratePage = () => {
   const navigate = useNavigate();
@@ -100,7 +103,12 @@ const DeepfakeGeneratePage = () => {
 
       if (values.function === "fomm") {
         const imageBase64 = await getTargetImageBase64();
-        const prompt = values.fommPrompt?.trim() || FACE_ANIMATION_DEFAULT_PROMPT;
+        const prompt = values.fommPrompt?.trim();
+
+        if (!prompt) {
+          message.warning("请输入动作描述");
+          return;
+        }
 
         setResult(await generateFaceAnimation({ imageBase64, prompt }));
         message.success("生成成功！");
@@ -115,9 +123,16 @@ const DeepfakeGeneratePage = () => {
       }
 
       const imageBase64 = await getTargetImageBase64();
-      setResult(await generateSeedEdit({ imageBase64, prompt }));
+      const scale = typeof values.seedEditScale === "number" ? values.seedEditScale : DEFAULT_SEEDEDIT_SCALE;
+      const seed = values.seedEditSeedMode === "fixed" ? values.seedEditSeed : RANDOM_SEEDEDIT_SEED;
+      setResult(await generateSeedEdit({ imageBase64, prompt, scale, seed }));
       message.success("生成成功！");
     } catch (error) {
+      if (isFormValidationError(error)) {
+        message.warning("请完善必填项");
+        return;
+      }
+
       console.error("Generate error:", error);
       message.error(error instanceof Error ? error.message : "生成失败，请重试");
     } finally {
@@ -175,7 +190,7 @@ const DeepfakeGeneratePage = () => {
   };
 
   return (
-    <div className="page-transition">
+    <div className="page-transition deepfake-page">
       <div className="page-header">
         <Title level={TITLE_LEVEL_TWO} className="page-title">
           深度伪造人脸生成
@@ -186,8 +201,8 @@ const DeepfakeGeneratePage = () => {
         </Paragraph>
       </div>
 
-      <Row gutter={GRID_GUTTER}>
-        <Col xs={COL_FULL_SPAN} lg={DEEPFAKE_CONFIG_LG_SPAN}>
+      <Row gutter={[22, 22]} className="deepfake-workspace" align="stretch">
+        <Col xs={COL_FULL_SPAN} lg={DEEPFAKE_CONFIG_LG_SPAN} className="deepfake-config-column">
           <DeepfakeGenerateForm
             form={form}
             functionType={functionType}
@@ -203,9 +218,10 @@ const DeepfakeGeneratePage = () => {
           />
         </Col>
 
-        <Col xs={COL_FULL_SPAN} lg={DEEPFAKE_RESULT_LG_SPAN}>
+        <Col xs={COL_FULL_SPAN} lg={DEEPFAKE_RESULT_LG_SPAN} className="deepfake-result-column">
           <MediaResultCard
             title="生成结果与预览"
+            className="deepfake-result-card"
             loading={loading}
             loadingText="正在生成中，请稍候..."
             emptyText={'请配置参数并点击"开始生成"按钮'}

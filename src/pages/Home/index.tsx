@@ -13,6 +13,8 @@ import {
   ApiOutlined,
 } from "@ant-design/icons";
 
+import { DScanLogoMark } from "@/components/common/DScanLogoMark";
+
 const { Title, Paragraph, Text } = Typography;
 
 const HomePage = () => {
@@ -63,9 +65,9 @@ const HomePage = () => {
           boxShadow: "var(--shadow-md)",
         }}
       >
-        <RocketOutlined style={{ fontSize: 48, marginBottom: 16, opacity: 0.9 }} />
+        <DScanLogoMark className="home-dscan-logo" />
         <Title level={1} style={{ color: "white", marginBottom: 12, fontSize: 28, fontFamily: "var(--font-heading)" }}>
-          AIGC 安全检测平台
+          DScan
         </Title>
         <Paragraph
           style={{
@@ -78,7 +80,8 @@ const HomePage = () => {
           }}
         >
           面向 AI
-          生成内容（AIGC）安全研究的一体化工具：支持合成媒体生成与多模态内容生成、深度伪造与不安全内容检测，以及生成与检测记录的集中管理。本平台仅供学术研究与安全评估使用。
+          生成内容（AIGC）安全研究的一体化工具：支持合成媒体生成与多模态内容生成、深度伪造与不安全内容检测，以及生成与检测记录的集中管理。DScan
+          仅供学术研究与安全评估使用。
         </Paragraph>
         <Space size="middle">
           <Button
@@ -230,7 +233,7 @@ const HomePage = () => {
           }}
         >
           <CheckCircleOutlined style={{ marginRight: 8, color: "var(--color-primary)" }} />
-          平台能力指标
+          DScan 能力指标
         </Title>
         <Row gutter={[24, 24]}>
           <Col xs={12} md={6}>

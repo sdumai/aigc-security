@@ -265,6 +265,6 @@ ${violationSection}
 ${result.suggestions.map((suggestion, index) => `${index + REPORT_LIST_START_INDEX}. ${suggestion}`).join("\n")}
 
 ---
-此报告由 AIGC 安全性研究与工具平台自动生成
+此报告由 DScan AIGC 安全检测平台自动生成
 `;
 };
