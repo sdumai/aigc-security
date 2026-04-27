@@ -5,6 +5,7 @@ import type { UploadFile } from "antd";
 
 import {
   DEEPFAKE_DEFAULT_FUNCTION,
+  DEEPFAKE_DEFAULT_MODEL,
   DEEPFAKE_FUNCTION_LABELS,
   EMPTY_UPLOAD_COUNT,
   FACE_ANIMATION_DEFAULT_PROMPT,
@@ -13,8 +14,9 @@ import {
 import { DATA_OUTPUT_ROUTE } from "@/constants/routes";
 import {
   COL_FULL_SPAN,
-  COL_HALF_LG_SPAN,
   DEEPFAKE_RESULT_IMAGE_WIDTH,
+  DEEPFAKE_CONFIG_LG_SPAN,
+  DEEPFAKE_RESULT_LG_SPAN,
   GRID_GUTTER,
   MESSAGE_DURATION_SECONDS,
   MESSAGE_LOADING_DURATION_FOREVER,
@@ -45,6 +47,7 @@ const DeepfakeGeneratePage = () => {
   const [functionType, setFunctionType] = useState<TDeepfakeFunction>(DEEPFAKE_DEFAULT_FUNCTION);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImageUrl, setPreviewImageUrl] = useState("");
+  const selectedModel = Form.useWatch("model", form);
 
   const handleUploadPreview = async (file: UploadFile) => {
     const url = await getUploadPreviewUrl(file);
@@ -90,7 +93,7 @@ const DeepfakeGeneratePage = () => {
           throw new Error("无法读取驱动人脸，请重新上传");
         }
 
-        setResult(await generateFaceSwap({ imageBase64, templateBase64 }));
+        setResult(await generateFaceSwap({ imageBase64, templateBase64, model: values.model }));
         message.success("生成成功！");
         return;
       }
@@ -184,10 +187,11 @@ const DeepfakeGeneratePage = () => {
       </div>
 
       <Row gutter={GRID_GUTTER}>
-        <Col xs={COL_FULL_SPAN} lg={COL_HALF_LG_SPAN}>
+        <Col xs={COL_FULL_SPAN} lg={DEEPFAKE_CONFIG_LG_SPAN}>
           <DeepfakeGenerateForm
             form={form}
             functionType={functionType}
+            selectedModel={selectedModel || DEEPFAKE_DEFAULT_MODEL}
             targetFile={targetFile}
             sourceFile={sourceFile}
             loading={loading}
@@ -199,7 +203,7 @@ const DeepfakeGeneratePage = () => {
           />
         </Col>
 
-        <Col xs={COL_FULL_SPAN} lg={COL_HALF_LG_SPAN}>
+        <Col xs={COL_FULL_SPAN} lg={DEEPFAKE_RESULT_LG_SPAN}>
           <MediaResultCard
             title="生成结果与预览"
             loading={loading}

@@ -3,13 +3,18 @@ import type {
   ISelectOption,
   TDeepfakeFunction,
   TDeepfakeModel,
+  TFaceSwapModel,
   TImageModel,
   TVideoModel,
 } from "@/typings/generate";
 
 export const DEEPFAKE_DEFAULT_FUNCTION: TDeepfakeFunction = "faceswap";
 
-export const DEEPFAKE_DEFAULT_MODEL: TDeepfakeModel = "FaceShifter";
+export const FACE_SWAP_MODEL_V2: TFaceSwapModel = "Volc FaceSwap 2.0";
+
+export const FACE_SWAP_MODEL_V36: TFaceSwapModel = "Volc FaceSwap 3.6";
+
+export const DEEPFAKE_DEFAULT_MODEL: TDeepfakeModel = FACE_SWAP_MODEL_V2;
 
 export const FACE_ANIMATION_DEFAULT_PROMPT = "让图中人脸做自然的微笑和轻微点头动作";
 export const DEFAULT_IMAGE_MODEL = "volc";
@@ -55,10 +60,36 @@ export const I2V_REFERENCE_TOOLTIP = `按顺序对应提示词中的 [图1][图2
 export const I2V_UPLOAD_TEXT = `上传参考图（1～${I2V_MAX_IMAGE_COUNT} 张）`;
 
 export const DEEPFAKE_MODEL_OPTIONS: Record<TDeepfakeFunction, TDeepfakeModel[]> = {
-  faceswap: ["FaceShifter", "SimSwap", "DeepFaceLab", "FaceSwap-GAN"],
+  faceswap: [FACE_SWAP_MODEL_V2, FACE_SWAP_MODEL_V36],
   fomm: ["FOMM", "Face2Face", "Wav2Lip", "LivePortrait"],
   stargan: ["StarGAN", "StarGAN-v2", "AttGAN", "STGAN"],
 };
+
+export const FACE_SWAP_MODEL_INTROS: Array<{
+  model: TFaceSwapModel;
+  version: string;
+  endpoint: string;
+  summary: string;
+  strengths: string[];
+  tradeoff: string;
+}> = [
+  {
+    model: FACE_SWAP_MODEL_V2,
+    version: "视觉智能 FaceSwap",
+    endpoint: "Action=FaceSwap",
+    summary: "使用成熟的表单网关完成人脸替换，输入源人脸与目标模板图后同步返回融合图 Base64。",
+    strengths: ["链路稳定", "响应直接", "适合单人替换"],
+    tradeoff: "能力偏基础，图片大小与模板限制更严格。",
+  },
+  {
+    model: FACE_SWAP_MODEL_V36,
+    version: "人像融合 3.6",
+    endpoint: "Action=CVProcess",
+    summary: "使用新版视觉处理网关，支持多人选脸、水印信息与更大的图片尺寸，融合边缘效果更自然。",
+    strengths: ["边缘融合升级", "支持多人选脸", "可扩展水印与标识"],
+    tradeoff: "质量更高但性能稍有折损。",
+  },
+];
 
 export const DEEPFAKE_FUNCTION_LABELS: Record<TDeepfakeFunction, string> = {
   faceswap: "人脸替换",

@@ -166,7 +166,7 @@ code {
   font-size: 14px;
   color: var(--color-text-secondary);
   line-height: 1.7;
-  max-width: 720px;
+  max-width: 1020px;
 }
 
 /* ========== 卡片与上传区 ========== */
@@ -204,6 +204,204 @@ code {
   border-radius: var(--radius-md);
   padding: 20px;
   background: var(--color-bg-muted);
+}
+
+.deepfake-config-card .ant-card-head {
+  min-height: 58px;
+}
+
+.deepfake-generate-action {
+  min-width: 128px;
+  height: 36px;
+  border-color: #2c5282 !important;
+  background: linear-gradient(135deg, #2c5282 0%, #315f8d 100%) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    0 2px 6px rgba(30, 58, 95, 0.16);
+  font-weight: 500;
+}
+
+.deepfake-generate-action:not(:disabled):not(.ant-btn-disabled):hover {
+  border-color: #37689a !important;
+  background: linear-gradient(135deg, #37689a 0%, #3f76aa 100%) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    0 3px 8px rgba(30, 58, 95, 0.2);
+}
+
+.deepfake-generate-action:not(:disabled):not(.ant-btn-disabled):active {
+  border-color: #26496f !important;
+  background: linear-gradient(135deg, #26496f 0%, #2c5282 100%) !important;
+  box-shadow: inset 0 2px 4px rgba(20, 40, 66, 0.18);
+}
+
+.deepfake-config-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    "uploads"
+    "controls";
+  gap: 18px;
+  align-items: start;
+}
+
+.deepfake-config-layout.has-model-guide {
+  grid-template-columns: max-content minmax(0, 1fr);
+  grid-template-areas:
+    "uploads guide"
+    "controls controls";
+  column-gap: 20px;
+}
+
+.deepfake-config-form {
+  min-width: 0;
+}
+
+.deepfake-upload-fields {
+  grid-area: uploads;
+  min-width: 0;
+  width: 100%;
+}
+
+.deepfake-config-layout.has-model-guide .deepfake-upload-fields {
+  width: max-content;
+}
+
+.deepfake-upload-fields .ant-form-item {
+  margin-bottom: 30px;
+}
+
+.deepfake-upload-fields .ant-form-item-label > label {
+  white-space: nowrap;
+}
+
+.deepfake-config-guide {
+  grid-area: guide;
+  min-width: 0;
+  padding-top: 2px;
+  justify-self: stretch;
+  max-width: 100%;
+}
+
+.deepfake-control-fields {
+  grid-area: controls;
+  max-width: 420px;
+  min-width: 0;
+}
+
+.faceswap-model-card {
+  width: 100%;
+  max-width: 100%;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.faceswap-model-card-header {
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--color-border-light);
+  color: var(--color-text);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.faceswap-model-card-header .ant-space {
+  min-width: 0;
+}
+
+.faceswap-model-card-header span {
+  white-space: nowrap;
+}
+
+.faceswap-model-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  padding: 10px;
+}
+
+.faceswap-model-panel {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 9px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.faceswap-model-panel.is-active {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-md);
+}
+
+.faceswap-model-panel:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.faceswap-model-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.faceswap-model-panel-header .ant-typography {
+  white-space: nowrap;
+}
+
+.faceswap-model-version {
+  margin-top: 1px;
+  color: var(--color-text-muted);
+  font-size: 12px;
+}
+
+.faceswap-model-summary {
+  margin-bottom: 0 !important;
+  color: var(--color-text-secondary);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.faceswap-model-tags {
+  min-height: 22px;
+}
+
+@media (max-width: 1180px) {
+  .deepfake-config-layout.has-model-guide {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "uploads"
+      "guide"
+      "controls";
+  }
+
+  .deepfake-control-fields {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 900px) {
+  .faceswap-model-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .faceswap-model-panel {
+    min-height: auto;
+  }
 }
 
 /* 图片 hover 显示「眼睛 + 预览」，点击在页内预览不跳转 */

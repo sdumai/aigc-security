@@ -1,12 +1,14 @@
 import {
   DEFAULT_MODELSCOPE_FRAME_COUNT,
   DEFAULT_MODELSCOPE_INFERENCE_STEPS,
+  FACE_SWAP_MODEL_V36,
   IMAGE_MODEL_OPTIONS,
   VIDEO_MODEL_OPTIONS,
 } from "@/constants/generate";
 import type {
   IImageGenerateResult,
   IVideoGenerateResult,
+  TDeepfakeModel,
   TImageModel,
   TVideoModel,
 } from "@/typings/generate";
@@ -24,6 +26,7 @@ interface IApiData {
 export interface IFaceSwapGenerateParams {
   imageBase64: string;
   templateBase64: string;
+  model?: TDeepfakeModel;
 }
 
 export interface IFaceAnimationGenerateParams {
@@ -123,7 +126,11 @@ const requireVideoUrl = (data: IApiData, defaultMessage: string): IVideoGenerate
 };
 
 export const generateFaceSwap = async (params: IFaceSwapGenerateParams): Promise<IImageGenerateResult> => {
-  const data = await postJson("/api/generate/faceswap", params);
+  const endpoint = params.model === FACE_SWAP_MODEL_V36 ? "/api/generate/faceswap-3.6" : "/api/generate/faceswap";
+  const data = await postJson(endpoint, {
+    imageBase64: params.imageBase64,
+    templateBase64: params.templateBase64,
+  });
   return requireImageUrl(data, "人脸替换完成。");
 };
 

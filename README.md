@@ -257,7 +257,8 @@ VITE_API_BASE=http://10.102.32.144:3001
 | 检测 | `POST /api/detect/volc-ims`                 | 图像敏感内容检测                  |
 | 检测 | `POST /api/detect/volc-video-ims`           | 视频敏感内容检测                  |
 | 检测 | `POST /api/detect/volc-video-aigc`          | 视频 AI 生成检测                  |
-| 生成 | `POST /api/generate/faceswap`               | 人脸替换                          |
+| 生成 | `POST /api/generate/faceswap`               | 人脸替换（Volc FaceSwap 2.0）      |
+| 生成 | `POST /api/generate/faceswap-3.6`           | 人脸替换（Volc FaceSwap 3.6）      |
 | 生成 | `POST /api/generate/seededit`               | 图像属性编辑                      |
 | 生成 | `POST /api/generate/fomm`                   | 人脸动画/图生视频类能力           |
 | 生成 | `POST /api/generate/image`                  | 火山文生图                        |

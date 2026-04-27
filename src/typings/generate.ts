@@ -6,11 +6,10 @@ export type TContentType = "image" | "video";
 
 export type TDeepfakeFunction = "faceswap" | "fomm" | "stargan";
 
+export type TFaceSwapModel = "Volc FaceSwap 2.0" | "Volc FaceSwap 3.6";
+
 export type TDeepfakeModel =
-  | "FaceShifter"
-  | "SimSwap"
-  | "DeepFaceLab"
-  | "FaceSwap-GAN"
+  | TFaceSwapModel
   | "FOMM"
   | "Face2Face"
   | "Wav2Lip"
