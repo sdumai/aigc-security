@@ -1,12 +1,15 @@
 import { useState } from "react";
 import { Col, message, Row, Select, Tabs, Typography } from "antd";
+import { PictureOutlined, VideoCameraOutlined } from "@ant-design/icons";
 import type { UploadFile, UploadProps } from "antd";
 
+import { DetectModelIntroCard } from "@/components/Detect/common/DetectModelIntroCard";
 import { ImageDetectInputCard } from "@/components/Detect/common/ImageDetectInputCard";
 import { VideoInputCard } from "@/components/Detect/common/VideoInputCard";
 import { FakeDetectResultCard } from "@/components/Detect/Fake/FakeDetectResultCard";
 import {
   DEFAULT_IMAGE_DETECT_BACKEND,
+  DEFAULT_VIDEO_UNDERSTANDING_FPS,
   DETECT_STEP_INPUT,
   DETECT_STEP_READY,
   DETECT_STEP_RESULT,
@@ -41,6 +44,7 @@ const FakeDetectPage = () => {
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [videoUploadFileName, setVideoUploadFileName] = useState("");
   const [videoPreviewUrl, setVideoPreviewUrl] = useState("");
+  const [videoFps, setVideoFps] = useState(DEFAULT_VIDEO_UNDERSTANDING_FPS);
   const [activeTab, setActiveTab] = useState<TDetectInputTab>("upload");
   const [videoInputTab, setVideoInputTab] = useState<TDetectInputTab>("upload");
   const [imageDetectBackend, setImageDetectBackend] = useState<TImageDetectBackend>(DEFAULT_IMAGE_DETECT_BACKEND);
@@ -136,6 +140,7 @@ const FakeDetectPage = () => {
       setLoading(true);
       setResult(null);
       const body: IDetectMediaBody = {};
+      body.fps = videoFps;
 
       if (videoFile) {
         if (videoFile.size > MAX_LOCAL_VIDEO_BASE64_BYTES) {
@@ -178,6 +183,7 @@ const FakeDetectPage = () => {
     setVideoUrl("");
     setVideoPreviewUrl("");
     setVideoFile(null);
+    setVideoFps(DEFAULT_VIDEO_UNDERSTANDING_FPS);
     setVideoUploadFileName("");
     setCurrentStep(DETECT_STEP_INPUT);
     setImageDetectBackend(DEFAULT_IMAGE_DETECT_BACKEND);
@@ -185,14 +191,14 @@ const FakeDetectPage = () => {
 
   const uploadProps: UploadProps = {
     name: "file",
-      multiple: false,
+    multiple: false,
     customRequest: handleImageUpload,
     showUploadList: false,
     accept: "image/*",
   };
 
   return (
-    <div className="page-transition">
+    <div className="page-transition detect-page fake-detect-page">
       <div className="page-header">
         <Title level={TITLE_LEVEL_TWO} className="page-title">
           合成媒体与深度伪造检测
@@ -204,20 +210,25 @@ const FakeDetectPage = () => {
         </Paragraph>
       </div>
 
-      <Row gutter={GRID_GUTTER}>
-        <Col xs={COL_FULL_SPAN} lg={COL_HALF_LG_SPAN}>
-          <Tabs
-            activeKey={detectType}
-            onChange={(key) => {
-              setDetectType(key as TDetectContentKind);
-              setResult(null);
-              setCurrentStep(DETECT_STEP_INPUT);
-            }}
-            items={[
-              {
-                key: "image",
-                label: "图片 AI 合成检测",
-                children: (
+      <Tabs
+        className="detect-top-tabs"
+        activeKey={detectType}
+        onChange={(key) => {
+          setDetectType(key as TDetectContentKind);
+          setResult(null);
+          setCurrentStep(DETECT_STEP_INPUT);
+        }}
+        items={[
+          {
+            key: "image",
+            label: (
+              <span>
+                <PictureOutlined /> 图片 AI 合成检测
+              </span>
+            ),
+            children: (
+              <Row gutter={GRID_GUTTER} className="detect-workspace">
+                <Col xs={COL_FULL_SPAN} lg={COL_HALF_LG_SPAN}>
                   <ImageDetectInputCard
                     title="上传待检测图片"
                     activeTab={activeTab}
@@ -236,6 +247,7 @@ const FakeDetectPage = () => {
                     onDetect={handleImageDetect}
                     onReset={resetDetection}
                     detectButtonText={`开始检测（${IMAGE_DETECT_BACKENDS.find((backend) => backend.value === imageDetectBackend)?.label || ""}）`}
+                    modelIntro={<DetectModelIntroCard selectedBackend={imageDetectBackend} />}
                     modelSelector={
                       <Select
                         size="large"
@@ -252,14 +264,26 @@ const FakeDetectPage = () => {
                       </Select>
                     }
                   />
-                ),
-              },
-              {
-                key: "video",
-                label: "视频 AI 合成检测",
-                children: (
+                </Col>
+                <Col xs={COL_FULL_SPAN} lg={COL_HALF_LG_SPAN}>
+                  <FakeDetectResultCard detectType={detectType} loading={loading} result={result} />
+                </Col>
+              </Row>
+            ),
+          },
+          {
+            key: "video",
+            label: (
+              <span>
+                <VideoCameraOutlined /> 视频 AI 合成检测
+              </span>
+            ),
+            children: (
+              <Row gutter={GRID_GUTTER} className="detect-workspace">
+                <Col xs={COL_FULL_SPAN} lg={COL_HALF_LG_SPAN}>
                   <VideoInputCard
                     title="上传待检测视频"
+                    modelIntro={<DetectModelIntroCard selectedBackend="volc" />}
                     description={
                       <Paragraph type="secondary" style={{ marginBottom: SMALL_SPACE_SIZE }}>
                         对视频进行合成/深度伪造检测，使用<strong>火山引擎</strong>多模态视频理解。支持公网 URL
@@ -272,6 +296,7 @@ const FakeDetectPage = () => {
                     videoUrlInput={videoUrl}
                     videoPreviewUrl={videoPreviewUrl}
                     videoUploadFileName={videoUploadFileName}
+                    fps={videoFps}
                     detectButtonDisabled={!videoFile && !videoUrl.trim()}
                     onInputTabChange={(tab) => {
                       setVideoInputTab(tab);
@@ -285,19 +310,19 @@ const FakeDetectPage = () => {
                       setVideoUrl(value);
                       setVideoPreviewUrl("");
                     }}
+                    onFpsChange={setVideoFps}
                     onDetect={handleVideoDetect}
                     onReset={resetDetection}
                   />
-                ),
-              },
-            ]}
-          />
-        </Col>
-
-        <Col xs={COL_FULL_SPAN} lg={COL_HALF_LG_SPAN}>
-          <FakeDetectResultCard detectType={detectType} loading={loading} result={result} />
-        </Col>
-      </Row>
+                </Col>
+                <Col xs={COL_FULL_SPAN} lg={COL_HALF_LG_SPAN}>
+                  <FakeDetectResultCard detectType={detectType} loading={loading} result={result} />
+                </Col>
+              </Row>
+            ),
+          },
+        ]}
+      />
     </div>
   );
 };

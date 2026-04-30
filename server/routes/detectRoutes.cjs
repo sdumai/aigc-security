@@ -8,7 +8,7 @@ const {
   VOLC_VIDEO_SAFE_PROMPT,
 } = require("../prompts.cjs");
 const { extractJsonObject, getErrorMessage, sendBadRequest, sendInternalError, sendJsonError } = require("../utils/http.cjs");
-const { resolveImageUrlContentBlock, resolveVideoUrlValue } = require("../utils/media.cjs");
+const { resolveImageUrlContentBlock, resolveVideoUrlContentBlock } = require("../utils/media.cjs");
 
 function requireArkApiKey(res, message = "请先配置生成服务密钥（VOLC_ARK_API_KEY）") {
   if (config.ark.apiKey) return false;
@@ -144,12 +144,12 @@ function registerVideoSafetyRoute(app) {
         return;
       }
 
-      const videoUrlValue = resolveVideoUrlValue(req.body);
-      if (!videoUrlValue) {
+      const videoInput = resolveVideoUrlContentBlock(req.body);
+      if (!videoInput) {
         return sendBadRequest(res, "需要 videoUrl（公网可访问的视频地址）或 videoBase64（视频 Base64 编码）");
       }
 
-      const response = await videoChat(videoUrlValue, VOLC_VIDEO_SAFE_PROMPT);
+      const response = await videoChat(videoInput, VOLC_VIDEO_SAFE_PROMPT);
       const parsedResponse = await parseArkJsonResponse(response, "接口错误");
       if (!parsedResponse.ok) {
         return sendInternalError(res, parsedResponse.message);
@@ -203,12 +203,12 @@ function registerVideoAigcRoute(app) {
       if (requireArkApiKey(res, "请先配置生成服务密钥")) return;
       if (requireArkVisionModel(res, "请配置 VOLC_ARK_VISION_MODEL（支持视频理解的模型接入点 ID）")) return;
 
-      const videoUrlValue = resolveVideoUrlValue(req.body);
-      if (!videoUrlValue) {
+      const videoInput = resolveVideoUrlContentBlock(req.body);
+      if (!videoInput) {
         return sendBadRequest(res, "需要 videoUrl（公网可访问）或 videoBase64");
       }
 
-      const response = await videoChat(videoUrlValue, VOLC_VIDEO_AIGC_PROMPT);
+      const response = await videoChat(videoInput, VOLC_VIDEO_AIGC_PROMPT);
       const parsedResponse = await parseArkJsonResponse(response, "视频理解接口错误");
       if (!parsedResponse.ok) {
         return sendInternalError(res, parsedResponse.message);

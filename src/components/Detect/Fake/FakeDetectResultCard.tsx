@@ -41,7 +41,7 @@ export interface IFakeDetectResultCardProps {
 export const FakeDetectResultCard = ({ detectType, loading, result }: IFakeDetectResultCardProps) => {
   if (!result && !loading) {
     return (
-      <Card title="检测结果" bordered={false}>
+      <Card title="检测结果" bordered={false} className="detect-result-card fake-detect-result-card">
         <DetectEmptyState
           icon={<ScanOutlined style={{ fontSize: EMPTY_ICON_SIZE, color: MUTED_ICON_COLOR, marginBottom: DEFAULT_SPACE_SIZE }} />}
           title={detectType === "video" ? "输入视频 URL 或选择本地视频后点击开始检测" : "等待上传文件"}
@@ -53,7 +53,7 @@ export const FakeDetectResultCard = ({ detectType, loading, result }: IFakeDetec
 
   if (loading) {
     return (
-      <Card title="检测结果" bordered={false}>
+      <Card title="检测结果" bordered={false} className="detect-result-card fake-detect-result-card">
         <DetectLoadingState text={detectType === "video" ? "检测中…（视频理解分析中）" : "检测中..."} />
       </Card>
     );
@@ -71,7 +71,7 @@ export const FakeDetectResultCard = ({ detectType, loading, result }: IFakeDetec
   );
 
   return (
-    <Card title="检测结果" bordered={false}>
+    <Card title="检测结果" bordered={false} className="detect-result-card fake-detect-result-card">
       <Space direction="vertical" size="large" style={{ width: FULL_WIDTH }}>
         <div style={{ textAlign: "center", padding: RESULT_HEADER_PADDING }}>
           {resultIcon}

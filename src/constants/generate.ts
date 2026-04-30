@@ -9,6 +9,8 @@ import type {
   TFaceSwapLogoPosition,
   TFaceAnimationModel,
   TFaceSwapModel,
+  TImageToVideoMode,
+  TImageToVideoModel,
   TImageOutputFormat,
   TImageModel,
   TImageResponseFormat,
@@ -46,6 +48,12 @@ export const DEFAULT_VIDEO_WATERMARK = false;
 export const SEEDANCE_2_ACCESS_KEY = "seedance_pwd";
 export const DEFAULT_T2V_DURATION = "5";
 export const DEFAULT_I2V_DURATION = "5";
+export const DEFAULT_I2V_MODEL: TImageToVideoModel = "volc-seedance-lite-i2v";
+export const DEFAULT_I2V_MODE: TImageToVideoMode = "reference";
+export const DEFAULT_I2V_RESOLUTION: TVideoResolution = "720p";
+export const DEFAULT_I2V_SEED = -1;
+export const DEFAULT_I2V_GENERATE_AUDIO = true;
+export const DEFAULT_I2V_CAMERA_FIXED = false;
 export const DEFAULT_MODELSCOPE_FRAMES = "16";
 export const DEFAULT_MODELSCOPE_STEPS = "25";
 export const DEFAULT_MODELSCOPE_FRAME_COUNT = 16;
@@ -86,6 +94,7 @@ export const PROMPT_MAX_LENGTH = 500;
 export const TITLE_PROMPT_PREVIEW_START_INDEX = 0;
 export const TITLE_PROMPT_PREVIEW_LENGTH = 20;
 export const I2V_MAX_IMAGE_COUNT = 4;
+export const SEEDANCE_2_I2V_MAX_IMAGE_COUNT = 9;
 export const DEFAULT_IMAGE_UPLOAD_MAX_COUNT = 1;
 export const PRIMARY_UPLOAD_INDEX = 0;
 export const DEFAULT_MODEL_OPTION_INDEX = 0;
@@ -115,7 +124,7 @@ export const SEEDANCE_2_SEED_TOOLTIP = "-1 表示随机种子；填入固定整�
 export const MODELSCOPE_FRAMES_TOOLTIP = `服务端限制 ${MODELSCOPE_MIN_FRAMES}-${MODELSCOPE_MAX_FRAMES}，导出约 fps=${MODELSCOPE_DEFAULT_FPS}`;
 export const MODELSCOPE_STEPS_TOOLTIP = `${MODELSCOPE_MIN_STEPS}-${MODELSCOPE_MAX_STEPS}，越大越慢、质量可能略好`;
 export const I2V_REFERENCE_TOOLTIP = `按顺序对应提示词中的 [图1][图2]…，最多 ${I2V_MAX_IMAGE_COUNT} 张`;
-export const I2V_UPLOAD_TEXT = `上传参考图（1～${I2V_MAX_IMAGE_COUNT} 张）`;
+export const I2V_UPLOAD_TEXT = "上传参考图";
 
 export const DEEPFAKE_MODEL_OPTIONS: Record<TDeepfakeFunction, TDeepfakeModel[]> = {
   faceswap: [FACE_SWAP_MODEL_V36, FACE_SWAP_MODEL_V2],
@@ -245,6 +254,63 @@ export const VIDEO_MODEL_OPTIONS: IModelOption<TVideoModel>[] = [
   { value: "modelscope", label: "Model Scope", endpoint: "/api/generate/model-scope" },
 ];
 
+export const IMAGE_TO_VIDEO_MODEL_OPTIONS: IModelOption<TImageToVideoModel>[] = [
+  { value: "volc-seedance-lite-i2v", label: "Seedance 1.0 Lite I2V", endpoint: "/api/generate/i2v" },
+  { value: "volc-seedance-1-5-pro", label: "Seedance 1.5 Pro", endpoint: "/api/generate/i2v" },
+  { value: "volc-seedance-2-fast", label: "Seedance 2.0 Fast", endpoint: "/api/generate/i2v" },
+];
+
+export const IMAGE_TO_VIDEO_MODEL_INTROS: Array<{
+  model: TImageToVideoModel;
+  name: string;
+  badge: string;
+  summary: string;
+  strengths: string[];
+  tradeoff: string;
+}> = [
+  {
+    model: "volc-seedance-lite-i2v",
+    name: "Seedance 1.0 Lite I2V",
+    badge: "稳定",
+    summary: "当前项目默认图生视频链路，适合用 1-4 张参考图生成短视频样本，成本与响应稳定性更适合实验演示。",
+    strengths: ["参考图 1-4 张", "异步任务轮询", "适合样本构建"],
+    tradeoff: "能力偏基础，不支持同步音频。",
+  },
+  {
+    model: "volc-seedance-1-5-pro",
+    name: "Seedance 1.5 Pro",
+    badge: "高质量",
+    summary: "适合首帧或首尾帧驱动的视频生成，支持更高质量的画面控制、同步音频和 1080p 输出。",
+    strengths: ["首尾帧控制", "支持同步音频", "最高 1080p"],
+    tradeoff: "更适合精确镜头控制，多参考图融合能力不如 2.0 系列。",
+  },
+  {
+    model: "volc-seedance-2-fast",
+    name: "Seedance 2.0 Fast",
+    badge: "多参考",
+    summary: "面向新版多模态参考生视频，支持 1-9 张参考图、同步音频和更灵活的自适应比例，适合复杂主体与场景组合。",
+    strengths: ["参考图 1-9 张", "自适应比例", "支持同步音频"],
+    tradeoff: "不支持 1080p 与固定摄像头，调用成本更高。",
+  },
+];
+
+export const IMAGE_TO_VIDEO_MODE_OPTIONS: ISelectOption<TImageToVideoMode>[] = [
+  { value: "reference", label: "参考图融合" },
+  { value: "first-frame", label: "首帧驱动" },
+  { value: "first-last-frame", label: "首尾帧控制" },
+];
+
+export const IMAGE_TO_VIDEO_MODE_HELP_TEXT: Record<TImageToVideoMode, string> = {
+  reference: "按上传顺序作为参考图，适合保留主体、服饰、场景或风格，并在提示词中用 [图1]、[图2] 指代。",
+  "first-frame": "只使用第一张图作为视频首帧，适合让静态图自然动起来。",
+  "first-last-frame": "使用前两张图分别作为首帧和尾帧，适合控制视频起止状态。",
+};
+
+export const IMAGE_TO_VIDEO_REFERENCE_MODE_MODELS: TImageToVideoModel[] = [
+  "volc-seedance-lite-i2v",
+  "volc-seedance-2-fast",
+];
+
 export const IMAGE_SIZE_OPTIONS: ISelectOption[] = [
   { value: "1K", label: "1K" },
   { value: "2K", label: "2K" },
@@ -298,6 +364,12 @@ export const SEEDANCE_1_5_RESOLUTION_OPTIONS: ISelectOption<TVideoResolution>[] 
   { value: "480p", label: "480p 快速预览" },
 ];
 
+export const I2V_LITE_RESOLUTION_OPTIONS: ISelectOption<TVideoResolution>[] = [
+  { value: "720p", label: "720p 高清" },
+  { value: "1080p", label: "1080p 高质量" },
+  { value: "480p", label: "480p 快速预览" },
+];
+
 export const T2V_DURATION_OPTIONS: ISelectOption[] = [
   { value: "3", label: "3 秒" },
   { value: "5", label: "5 秒" },
@@ -323,10 +395,11 @@ export const SEEDANCE_1_5_DURATION_OPTIONS: ISelectOption[] = [
 ];
 
 export const I2V_DURATION_OPTIONS: ISelectOption[] = [
-  { value: "5", label: "5 秒" },
   { value: "2", label: "2 秒" },
   { value: "4", label: "4 秒" },
-  { value: "6", label: "6 秒" },
+  { value: "5", label: "5 秒" },
+  { value: "8", label: "8 秒" },
+  { value: "12", label: "12 秒" },
 ];
 
 export const MODELSCOPE_FRAME_OPTIONS: ISelectOption[] = [

@@ -44,8 +44,9 @@ function imageChat(imageInput, systemPrompt) {
   return chatCompletion([imageInput], systemPrompt);
 }
 
-function videoChat(videoUrl, systemPrompt) {
-  return chatCompletion([{ type: "video_url", video_url: { url: videoUrl } }], systemPrompt);
+function videoChat(videoInput, systemPrompt) {
+  const content = typeof videoInput === "string" ? { type: "video_url", video_url: { url: videoInput } } : videoInput;
+  return chatCompletion([content], systemPrompt);
 }
 
 function createImageGenerationTask({

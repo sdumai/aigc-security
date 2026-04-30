@@ -10,10 +10,22 @@
 \usepackage{array}
 \newcolumntype{C}[1]{>{\centering\arraybackslash}m{#1}}
 \newcolumntype{L}[1]{>{\raggedright\arraybackslash}m{#1}}
+\usepackage{float}
+\usepackage[section]{placeins}
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta,positioning,shapes.geometric,fit,calc,backgrounds}
 \usepackage{setspace}
 \onehalfspacing
+
+\newcommand{\screenshotplaceholder}[2][0.92\textwidth]{%
+  \fbox{%
+    \begin{minipage}[c][0.24\textheight][c]{#1}
+      \centering
+      #2\\[0.5em]
+      {\small 截图占位，后续替换为平台实际运行截图}
+    \end{minipage}%
+  }%
+}
 
 \usepackage{hyperref}
 \hypersetup{

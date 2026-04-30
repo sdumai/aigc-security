@@ -55,7 +55,7 @@ export const UnsafeDetectResultCard = ({
 }: IUnsafeDetectResultCardProps) => {
   if (!result && !loading) {
     return (
-      <Card title="检测结果" bordered={false}>
+      <Card title="检测结果" bordered={false} className="detect-result-card unsafe-detect-result-card">
         <DetectEmptyState
           icon={<SafetyOutlined style={{ fontSize: EMPTY_ICON_SIZE, color: MUTED_ICON_COLOR, marginBottom: DEFAULT_SPACE_SIZE }} />}
           title={emptyTitle}
@@ -67,7 +67,7 @@ export const UnsafeDetectResultCard = ({
 
   if (loading) {
     return (
-      <Card title="检测结果" bordered={false}>
+      <Card title="检测结果" bordered={false} className="detect-result-card unsafe-detect-result-card">
         <DetectLoadingState text="检测中..." />
       </Card>
     );
@@ -80,7 +80,7 @@ export const UnsafeDetectResultCard = ({
   const config = RISK_CONFIG[result.risk];
 
   return (
-    <Card title="检测结果" bordered={false}>
+    <Card title="检测结果" bordered={false} className="detect-result-card unsafe-detect-result-card">
       <Alert
         message="安全检测已完成"
         description={`检测到 ${result.violations.length} 个违规类型，风险等级：${config.text}`}

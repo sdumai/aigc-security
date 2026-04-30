@@ -25,6 +25,7 @@ const {
   sleep,
 } = require("../utils/http.cjs");
 const {
+  createImageToVideoContent,
   createReferenceImageContent,
   extractVolcGeneratedImage,
   normalizeModelScopeVideoUrl,
@@ -125,6 +126,11 @@ function resolveArkT2vModel(model) {
   return config.ark.t2vModels?.[modelKey] || null;
 }
 
+function resolveArkI2vModel(model) {
+  const modelKey = typeof model === "string" && model.trim() ? model.trim() : "volc-seedance-lite-i2v";
+  return config.ark.i2vModels?.[modelKey] || null;
+}
+
 function normalizeArkT2vRatio(value, isModernSeedance) {
   const allowed = isModernSeedance
     ? ["adaptive", "16:9", "4:3", "1:1", "3:4", "9:16", "21:9"]
@@ -156,6 +162,23 @@ function normalizeArkT2vSeed(value) {
   const numericValue = Number(value);
   if (!Number.isFinite(numericValue)) return -1;
   return Math.min(4294967295, Math.max(-1, Math.round(numericValue)));
+}
+
+function normalizeArkI2vMode(value) {
+  return ["reference", "first-frame", "first-last-frame"].includes(value) ? value : "reference";
+}
+
+function normalizeArkI2vRatio(value, modelKey, mode) {
+  const allowed =
+    modelKey === "volc-seedance-lite-i2v" && mode === "reference"
+      ? ["16:9", "1:1", "9:16"]
+      : ["adaptive", "16:9", "4:3", "1:1", "3:4", "9:16", "21:9"];
+  return allowed.includes(value) ? value : allowed[0];
+}
+
+function normalizeArkI2vResolution(value, modelKey) {
+  const allowed = modelKey === "volc-seedance-2-fast" ? ["480p", "720p"] : ["480p", "720p", "1080p"];
+  return allowed.includes(value) ? value : "720p";
 }
 
 function normalizeArkImageResponseFormat(format) {
@@ -698,24 +721,76 @@ function registerImageToVideoRoute(app) {
     try {
       if (requireArkApiKey(res)) return;
 
-      const { prompt, imageBase64List, ratio, duration } = req.body || {};
+      const {
+        model,
+        imageMode,
+        prompt,
+        imageBase64List,
+        ratio,
+        duration,
+        resolution,
+        seed,
+        generateAudio,
+        watermark,
+        cameraFixed,
+        seedanceAccessKey,
+      } = req.body || {};
       const promptText = typeof prompt === "string" ? prompt.trim() : "";
       const list = Array.isArray(imageBase64List) ? imageBase64List : [];
       if (list.length === 0) {
         return sendBadRequest(res, "需要至少一张参考图（imageBase64List）");
       }
+      const modelKey = typeof model === "string" && model.trim() ? model.trim() : "volc-seedance-lite-i2v";
+      const modelId = resolveArkI2vModel(modelKey);
+      if (!modelId) {
+        return sendBadRequest(res, "不支持的图生视频模型");
+      }
+      if (modelKey === "volc-seedance-2-fast" && seedanceAccessKey !== SEEDANCE_2_ACCESS_KEY) {
+        return sendBadRequest(res, "Doubao-Seedance-2.0-fast 需要作者授权口令");
+      }
 
-      const referenceImages = createReferenceImageContent(list);
+      const normalizedMode = normalizeArkI2vMode(imageMode);
+      if (modelKey === "volc-seedance-1-5-pro" && normalizedMode === "reference") {
+        return sendBadRequest(res, "Seedance 1.5 Pro 图生视频不支持参考图融合，请选择首帧或首尾帧控制");
+      }
+      if (normalizedMode === "first-last-frame" && list.length < 2) {
+        return sendBadRequest(res, "首尾帧控制需要 2 张图片");
+      }
+      const maxImageCount =
+        normalizedMode === "reference" && modelKey === "volc-seedance-2-fast"
+          ? 9
+          : normalizedMode === "reference"
+            ? 4
+            : normalizedMode === "first-last-frame"
+              ? 2
+              : 1;
+      if (list.length > maxImageCount) {
+        return sendBadRequest(res, `当前图像控制方式最多支持 ${maxImageCount} 张图片`);
+      }
+
+      const referenceImages = createImageToVideoContent(list, normalizedMode);
       if (referenceImages.length === 0) {
         return sendBadRequest(res, "需要至少一张有效参考图");
       }
 
-      const createRes = await createVideoGenerationTask({
-        model: config.ark.i2vModel,
-        content: [{ type: "text", text: promptText }, ...referenceImages],
-        ratio: ratio || DEFAULT_VIDEO_RATIO,
-        duration: Number(duration) || DEFAULT_VIDEO_DURATION_SECONDS,
-      });
+      const isModernSeedance = modelKey === "volc-seedance-1-5-pro" || modelKey === "volc-seedance-2-fast";
+      const taskBody = {
+        model: modelId,
+        content: [...(promptText ? [{ type: "text", text: promptText }] : []), ...referenceImages],
+        ratio: normalizeArkI2vRatio(ratio, modelKey, normalizedMode),
+        duration: normalizeArkT2vDuration(duration, modelKey),
+        resolution: normalizeArkI2vResolution(resolution, modelKey),
+        seed: normalizeArkT2vSeed(seed),
+        watermark: watermark === true,
+      };
+      if (isModernSeedance) {
+        taskBody.generate_audio = generateAudio !== false;
+      }
+      if (normalizedMode !== "reference" && modelKey !== "volc-seedance-2-fast") {
+        taskBody.camera_fixed = cameraFixed === true;
+      }
+
+      const createRes = await createVideoGenerationTask(taskBody);
       if (!createRes.ok) {
         const errData = await createRes.json().catch(() => ({}));
         return sendInternalError(res, errData?.error?.message || `创建任务失败 ${createRes.status}`);

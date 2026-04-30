@@ -16,14 +16,6 @@
 
 基于上述分析，本文将系统设计目标进一步细化为以下几点：第一，支持图像与视频两类输入媒介，并兼容文件上传和链接输入两种常见方式；第二，支持虚假内容检测和不安全内容审核两类安全任务；第三，支持本地模型与外部接口协同工作，形成多源能力统一接入框架；第四，支持检测结果可视化、风险分级和历史管理；第五，支持内容生成与检测联动，为样本构建与实验验证提供平台基础。围绕这些目标展开的需求分析，将直接决定系统总体架构与模块划分方式。
 
-
-\begin{figure}[htbp]
-  \centering
-  \includegraphics[width=0.98\textwidth]{figures/system/platform-home.png}
-  \caption{平台首页与整体功能模块}
-  \label{fig:platform-home}
-  \end{figure}
-
 \section{功能需求分析}
 
 \subsection{图像与视频输入}
@@ -98,7 +90,7 @@
 
 根据上述设计思路，本文平台总体架构如图~\ref{fig:system-architecture} 所示。该图并不强调某一个单独模型的内部结构，而是突出前端页面、后端代理、本地模型服务、外部能力接口与样本资源之间的协作关系。这样处理更符合本文系统设计型工作的重点，即说明多源能力如何被统一组织到同一安全分析平台中。
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 \centering
 \resizebox{\textwidth}{!}{%
 \begin{tikzpicture}[
@@ -171,7 +163,7 @@
 
 为了使上述过程更加清晰，本文将内容检测流程抽象为图~\ref{fig:detection-flow}。该流程图体现了平台设计中的两个关键点：一是前端只面向统一任务入口，二是本地模型与外部接口均由后端代理层统一封装，最终以标准化结果返回前端展示。
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 \centering
 \resizebox{0.98\textwidth}{!}{%
 \begin{tikzpicture}[
@@ -237,7 +229,7 @@
 
 根据当前平台的任务划分，本文将检测类结果抽象为表~\ref{tab:unified-result-schema} 所示的核心字段。该表并不对应某一个具体接口的原始返回，而是后端代理层归一化后的平台内部结果结构。通过这种方式，前端能够用相同的展示组件处理本地模型、多模态理解接口和内容审核接口返回的结果。
 
-\begin{table}[htbp]
+\begin{table}[H]
 \centering
 \caption{检测结果统一字段设计}
 \label{tab:unified-result-schema}

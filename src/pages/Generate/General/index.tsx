@@ -10,7 +10,7 @@ const { Title, Paragraph } = Typography;
 
 const GeneralGeneratePage = () => {
   return (
-    <div className="page-transition">
+    <div className="page-transition general-generate-page">
       <div className="page-header">
         <Title level={TITLE_LEVEL_TWO} className="page-title">
           多模态内容生成

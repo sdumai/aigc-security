@@ -64,6 +64,19 @@ function resolveVideoUrlValue(body) {
   return videoUrlValue;
 }
 
+function resolveVideoUrlContentBlock(body) {
+  const url = resolveVideoUrlValue(body);
+  if (!url) return null;
+
+  const fps = Number(body?.fps);
+  const videoUrl = { url };
+  if (Number.isFinite(fps) && fps >= 0.2 && fps <= 5) {
+    videoUrl.fps = fps;
+  }
+
+  return { type: "video_url", video_url: videoUrl };
+}
+
 function createReferenceImageContent(imageBase64List) {
   const list = Array.isArray(imageBase64List) ? imageBase64List : [];
   return list
@@ -76,13 +89,42 @@ function createReferenceImageContent(imageBase64List) {
     }));
 }
 
+function createImageToVideoContent(imageBase64List, mode = "reference") {
+  const list = Array.isArray(imageBase64List) ? imageBase64List : [];
+  const normalizedList = list.map((value) => (typeof value === "string" ? value.trim() : "")).filter(Boolean);
+
+  if (mode === "first-frame") {
+    return normalizedList.slice(0, 1).map((value) => ({
+      type: "image_url",
+      image_url: { url: toImageDataUrl(value) },
+      role: "first_frame",
+    }));
+  }
+
+  if (mode === "first-last-frame") {
+    return normalizedList.slice(0, 2).map((value, index) => ({
+      type: "image_url",
+      image_url: { url: toImageDataUrl(value) },
+      role: index === 0 ? "first_frame" : "last_frame",
+    }));
+  }
+
+  return normalizedList.map((value) => ({
+    type: "image_url",
+    image_url: { url: toImageDataUrl(value) },
+    role: "reference_image",
+  }));
+}
+
 module.exports = {
+  createImageToVideoContent,
   createReferenceImageContent,
   extractVolcGeneratedImage,
   normalizeModelScopeVideoUrl,
   normalizeVolcBase64Image,
   normalizeVolcGeneratedImageUrl,
   resolveImageUrlContentBlock,
+  resolveVideoUrlContentBlock,
   resolveVideoUrlValue,
   stripSimpleImageDataUrl,
   toImageDataUrl,

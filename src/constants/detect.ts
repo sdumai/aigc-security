@@ -29,13 +29,17 @@ export const EMPTY_SELECTION_COUNT = 0;
 export const SCORE_DECIMAL_PLACES = 6;
 export const REPORT_LIST_START_INDEX = 1;
 export const SAMPLE_IMAGE_DETECT_URL = "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=768";
+export const DEFAULT_VIDEO_UNDERSTANDING_FPS = 1;
+export const MIN_VIDEO_UNDERSTANDING_FPS = 0.2;
+export const MAX_VIDEO_UNDERSTANDING_FPS = 5;
+export const VIDEO_UNDERSTANDING_FPS_STEP = 0.2;
 
 export const DEFAULT_IMAGE_DETECT_BACKEND: TImageDetectBackend = "volc";
 export const DEFAULT_UNSAFE_MODEL = "Google-SafeSearch";
 
 export const IMAGE_DETECT_BACKENDS: ISelectOption<TImageDetectBackend>[] = [
-  { value: "volc", label: "Seed-2.0-pro" },
-  { value: "universal", label: "Universal-Fake-Detect" },
+  { value: "volc", label: "Doubao Seed 2.0 Pro" },
+  { value: "universal", label: "Universal Fake Detect" },
 ];
 
 export const SAFETY_DETECTION_MODELS: ISelectOption[] = [
@@ -44,6 +48,40 @@ export const SAFETY_DETECTION_MODELS: ISelectOption[] = [
   { value: "Azure-ContentModerator", label: "Azure Content Moderator" },
   { value: "NSFW-Detector", label: "NSFW Detector" },
 ];
+
+export const FAKE_DETECT_MODEL_INTROS: Array<{
+  backend: TImageDetectBackend;
+  name: string;
+  badge: string;
+  summary: string;
+  strengths: string[];
+  tradeoff: string;
+}> = [
+  {
+    backend: "volc",
+    name: "Doubao Seed 2.0 Pro",
+    badge: "方舟视觉理解",
+    summary: "基于火山方舟视觉理解模型，判断 AI 生成、合成或深度伪造痕迹，适合语义层面的真伪复核。",
+    strengths: ["URL/Base64", "JSON 输出", "人工复核"],
+    tradeoff: "依赖大模型视觉理解与提示词约束，结果应作为风险判断参考。",
+  },
+  {
+    backend: "universal",
+    name: "Universal Fake Detect",
+    badge: "本地基线",
+    summary: "本地 UniversalFakeDetect 服务，适合作为图像 AI 生成检测的可复现实验基线。",
+    strengths: ["本地推理", "可复现", "阈值可控"],
+    tradeoff: "需要本地服务启动，泛化效果取决于模型权重与训练分布。",
+  },
+];
+
+export const UNSAFE_DETECT_MODEL_INTRO = {
+  name: "方舟视觉安全审核",
+  badge: "固定审核链路",
+  summary: "敏感内容检测统一走火山方舟视觉理解链路，识别暴力、色情、仇恨、毒品赌博等风险标签。",
+  strengths: ["图/视频统一", "风险标签", "合规初筛"],
+  tradeoff: "当前页面不再暴露模型下拉选择，减少误导性配置。",
+};
 
 export const VIOLATION_LABELS: Record<string, string> = {
   violence: "暴力内容",

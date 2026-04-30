@@ -34,6 +34,10 @@ export type TVideoResolution = "480p" | "720p" | "1080p";
 
 export type TVideoRatio = "adaptive" | "16:9" | "4:3" | "1:1" | "3:4" | "9:16" | "21:9";
 
+export type TImageToVideoModel = "volc-seedance-lite-i2v" | "volc-seedance-1-5-pro" | "volc-seedance-2-fast";
+
+export type TImageToVideoMode = "reference" | "first-frame" | "first-last-frame";
+
 export interface ISelectOption<TValue extends string = string> {
   value: TValue;
   label: ReactNode;
@@ -114,7 +118,14 @@ export interface ITextToVideoFormValues {
 }
 
 export interface IImageToVideoFormValues {
+  imageToVideoModel: TImageToVideoModel;
+  imageMode: TImageToVideoMode;
   prompt: string;
-  ratio: string;
+  ratio: TVideoRatio;
   duration: string;
+  resolution: TVideoResolution;
+  seed: number;
+  generateAudio: boolean;
+  watermark: boolean;
+  cameraFixed: boolean;
 }

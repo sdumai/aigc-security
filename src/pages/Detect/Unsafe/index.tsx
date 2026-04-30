@@ -1,24 +1,22 @@
 import { useState } from "react";
-import { Col, message, Row, Select, Tabs, Typography } from "antd";
+import { Col, message, Row, Tabs, Typography } from "antd";
 import { PictureOutlined, VideoCameraOutlined } from "@ant-design/icons";
 import type { UploadFile, UploadProps } from "antd";
 
+import { DetectModelIntroCard } from "@/components/Detect/common/DetectModelIntroCard";
 import { ImageDetectInputCard } from "@/components/Detect/common/ImageDetectInputCard";
 import { VideoInputCard } from "@/components/Detect/common/VideoInputCard";
 import { UnsafeDetectResultCard, RISK_CONFIG } from "@/components/Detect/Unsafe/UnsafeDetectResultCard";
 import {
-  DEFAULT_UNSAFE_MODEL,
+  DEFAULT_VIDEO_UNDERSTANDING_FPS,
   DETECT_STEP_INPUT,
   DETECT_STEP_READY,
   DETECT_STEP_RESULT,
-  EMPTY_SELECTION_COUNT,
-  SAFETY_DETECTION_MODELS,
   VIOLATION_LABELS,
 } from "@/constants/detect";
 import {
   COL_FULL_SPAN,
   COL_HALF_LG_SPAN,
-  FULL_WIDTH,
   GRID_GUTTER,
   SCROLL_AFTER_RESULT_DELAY_MS,
   TITLE_LEVEL_TWO,
@@ -39,12 +37,12 @@ const UnsafeDetectPage = () => {
   const [urlInput, setUrlInput] = useState("");
   const [contentKind, setContentKind] = useState<TDetectContentKind>("image");
   const [activeTab, setActiveTab] = useState<TDetectInputTab>("upload");
-  const [selectedModels, setSelectedModels] = useState<string[]>([DEFAULT_UNSAFE_MODEL]);
   const [currentStep, setCurrentStep] = useState(DETECT_STEP_INPUT);
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [videoUrlInput, setVideoUrlInput] = useState("");
   const [videoPreviewUrl, setVideoPreviewUrl] = useState("");
   const [videoUploadFileName, setVideoUploadFileName] = useState("");
+  const [videoFps, setVideoFps] = useState(DEFAULT_VIDEO_UNDERSTANDING_FPS);
   const [videoInputTab, setVideoInputTab] = useState<TDetectInputTab>("upload");
 
   const scrollToResult = () => {
@@ -60,13 +58,13 @@ const UnsafeDetectPage = () => {
       setVideoPreviewUrl("");
       setVideoUploadFileName("");
       setVideoFile(null);
+      setVideoFps(DEFAULT_VIDEO_UNDERSTANDING_FPS);
       return;
     }
 
     setUploadedFile(null);
     setPreviewUrl("");
     setUrlInput("");
-    setSelectedModels([DEFAULT_UNSAFE_MODEL]);
   };
 
   const handleImageUpload: UploadProps["customRequest"] = async ({ file }) => {
@@ -147,17 +145,12 @@ const UnsafeDetectPage = () => {
       return;
     }
 
-    if (selectedModels.length === EMPTY_SELECTION_COUNT) {
-      message.warning("请至少选择一个检测模型");
-      return;
-    }
-
     try {
       setLoading(true);
       setResult(null);
       setResult(await detectUnsafeImage(await createImageDetectBody(activeTab, uploadedFile, urlInput)));
       setCurrentStep(DETECT_STEP_RESULT);
-      message.success(`检测完成（${selectedModels.join(", ")}）`);
+      message.success("安全检测完成");
       scrollToResult();
     } catch (error) {
       console.error("Detection error:", error);
@@ -177,6 +170,7 @@ const UnsafeDetectPage = () => {
       setLoading(true);
       setResult(null);
       const body: IDetectMediaBody = {};
+      body.fps = videoFps;
 
       if (videoFile) {
         body.videoBase64 = await getBase64FromUploadFile({
@@ -227,7 +221,7 @@ const UnsafeDetectPage = () => {
   };
 
   return (
-    <div className="page-transition">
+    <div className="page-transition detect-page unsafe-detect-page">
       <div className="page-header">
         <Title level={TITLE_LEVEL_TWO} className="page-title">
           不安全内容检测
@@ -238,6 +232,7 @@ const UnsafeDetectPage = () => {
       </div>
 
       <Tabs
+        className="detect-top-tabs"
         activeKey={contentKind}
         onChange={(key) => {
           setContentKind(key as TDetectContentKind);
@@ -255,7 +250,7 @@ const UnsafeDetectPage = () => {
               </span>
             ),
             children: (
-              <Row gutter={GRID_GUTTER}>
+              <Row gutter={GRID_GUTTER} className="detect-workspace">
                 <Col xs={COL_FULL_SPAN} lg={COL_HALF_LG_SPAN}>
                   <ImageDetectInputCard
                     title="上传待检测内容"
@@ -273,25 +268,8 @@ const UnsafeDetectPage = () => {
                     onUrlLoad={handleUrlLoad}
                     onDetect={handleDetect}
                     onReset={resetDetection}
-                    detectButtonText={`使用 ${selectedModels.length} 个模型开始检测`}
-                    detectButtonDisabled={selectedModels.length === EMPTY_SELECTION_COUNT}
-                    modelSelector={
-                      <Select
-                        mode="multiple"
-                        size="large"
-                        value={selectedModels}
-                        onChange={setSelectedModels}
-                        optionLabelProp="label"
-                        placeholder="请选择检测模型/API"
-                        style={{ width: FULL_WIDTH }}
-                      >
-                        {SAFETY_DETECTION_MODELS.map((model) => (
-                          <Select.Option key={model.value} value={model.value} label={model.label}>
-                            {model.label}
-                          </Select.Option>
-                        ))}
-                      </Select>
-                    }
+                    detectButtonText="开始检测"
+                    modelIntro={<DetectModelIntroCard mode="unsafe" />}
                   />
                 </Col>
                 <Col xs={COL_FULL_SPAN} lg={COL_HALF_LG_SPAN}>
@@ -314,20 +292,30 @@ const UnsafeDetectPage = () => {
               </span>
             ),
             children: (
-              <Row gutter={GRID_GUTTER}>
+              <Row gutter={GRID_GUTTER} className="detect-workspace">
                 <Col xs={COL_FULL_SPAN} lg={COL_HALF_LG_SPAN}>
                   <VideoInputCard
                     title="上传待检测视频"
+                    modelIntro={<DetectModelIntroCard mode="unsafe" />}
                     inputTab={videoInputTab}
                     loading={loading}
                     videoFile={videoFile}
                     videoUrlInput={videoUrlInput}
                     videoPreviewUrl={videoPreviewUrl}
                     videoUploadFileName={videoUploadFileName}
+                    fps={videoFps}
                     detectButtonDisabled={!videoPreviewUrl && !videoFile && !videoUrlInput.trim()}
-                    onInputTabChange={setVideoInputTab}
+                    onInputTabChange={(tab) => {
+                      setVideoInputTab(tab);
+                      if (tab === "url") {
+                        setVideoFile(null);
+                        setVideoUploadFileName("");
+                        setVideoPreviewUrl("");
+                      }
+                    }}
                     onVideoFileChange={handleVideoFileChange}
                     onVideoUrlInputChange={setVideoUrlInput}
+                    onFpsChange={setVideoFps}
                     onVideoUrlLoad={handleVideoUrlLoad}
                     onDetect={handleDetect}
                     onReset={resetDetection}

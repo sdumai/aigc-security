@@ -52,6 +52,7 @@ export interface IDetectMediaBody {
   imageBase64?: string;
   videoUrl?: string;
   videoBase64?: string;
+  fps?: number;
 }
 
 export interface IRiskConfig {

@@ -12,6 +12,8 @@ import type {
   TFaceSwapFaceType,
   TFaceSwapLogoLanguage,
   TFaceSwapLogoPosition,
+  TImageToVideoMode,
+  TImageToVideoModel,
   TImageOutputFormat,
   TImageModel,
   TImageResponseFormat,
@@ -84,10 +86,18 @@ export interface ITextToVideoGenerateParams {
 }
 
 export interface IImageToVideoGenerateParams {
+  model?: TImageToVideoModel;
+  imageMode?: TImageToVideoMode;
   prompt: string;
   imageBase64List: string[];
-  ratio: string;
+  ratio: TVideoRatio;
   duration: string;
+  resolution?: TVideoResolution;
+  seed?: number;
+  generateAudio?: boolean;
+  watermark?: boolean;
+  cameraFixed?: boolean;
+  seedanceAccessKey?: string;
 }
 
 const parseJsonResponse = async (response: Response): Promise<IApiData> => {
@@ -230,10 +240,18 @@ export const generateTextToVideo = async (params: ITextToVideoGenerateParams): P
 
 export const generateImageToVideo = async (params: IImageToVideoGenerateParams): Promise<IVideoGenerateResult> => {
   const data = await postJson("/api/generate/i2v", {
+    model: params.model,
+    imageMode: params.imageMode,
     prompt: params.prompt,
     imageBase64List: params.imageBase64List,
     ratio: params.ratio,
     duration: params.duration,
+    resolution: params.resolution,
+    seed: params.seed,
+    generateAudio: params.generateAudio,
+    watermark: params.watermark,
+    cameraFixed: params.cameraFixed,
+    seedanceAccessKey: params.seedanceAccessKey,
   });
 
   return requireVideoUrl(data, "视频生成成功！");
