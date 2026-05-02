@@ -3,7 +3,7 @@ import type { TImageDetectBackend, TRiskLevel } from "@/typings/detect";
 
 export const KIB_BYTES = 1024;
 export const BYTES_PER_MB = KIB_BYTES * KIB_BYTES;
-export const MAX_LOCAL_VIDEO_BASE64_MB = 20;
+export const MAX_LOCAL_VIDEO_BASE64_MB = 50;
 export const MAX_LOCAL_VIDEO_BASE64_BYTES = MAX_LOCAL_VIDEO_BASE64_MB * BYTES_PER_MB;
 
 export const MIN_NORMALIZED_SCORE = 0;
@@ -68,7 +68,7 @@ export const FAKE_DETECT_MODEL_INTROS: Array<{
   {
     backend: "universal",
     name: "Universal Fake Detect",
-    badge: "本地基线",
+    badge: "本地开源",
     summary: "本地 UniversalFakeDetect 服务，适合作为图像 AI 生成检测的可复现实验基线。",
     strengths: ["本地推理", "可复现", "阈值可控"],
     tradeoff: "需要本地服务启动，泛化效果取决于模型权重与训练分布。",

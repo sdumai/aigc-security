@@ -93,7 +93,7 @@ const isHighRiskRecord = (record: IContentDetectionRecord) => {
   const score = getRecordNumericScore(record) || 0;
 
   if (record.type === "fake") {
-    return !record.result.includes("通过") && score >= 90;
+    return !record.result.includes("通过");
   }
 
   return record.result.includes("高") || score >= 80;
@@ -199,17 +199,12 @@ const DataOutputPage = () => {
   };
 
   const stats = useMemo(() => {
-    const detectedSampleIds = new Set(records.map((record) => record.sampleId).filter(Boolean));
-    const highRiskCount = records.filter(isHighRiskRecord).length;
-
     return {
       total: samples.length,
       image: samples.filter((sample) => sample.type === "image").length,
       video: samples.filter((sample) => sample.type === "video").length,
-      detected: samples.filter(
-        (sample) => sample.detectionStatus.fake || sample.detectionStatus.unsafe || detectedSampleIds.has(sample.id),
-      ).length,
-      highRisk: highRiskCount,
+      recordCount: records.length,
+      highRisk: records.filter(isHighRiskRecord).length,
     };
   }, [records, samples]);
 
@@ -606,7 +601,7 @@ const DataOutputPage = () => {
         </Col>
         <Col xs={12} lg={5}>
           <Card bordered={false} className="content-stat-card is-detected">
-            <Statistic title="已检测样本" value={stats.detected} />
+            <Statistic title="检测记录" value={stats.recordCount} />
           </Card>
         </Col>
         <Col xs={24} lg={4}>
