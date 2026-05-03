@@ -52,7 +52,7 @@
 \providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
 \newlabel{tab:fake-detection-methods}{{2-1}{9}{虚假内容检测方法比较}{table.caption.4}{}}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {2.3.5}不同检测方法的比较与适用场景}{9}{subsubsection.2.3.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.4}不安全内容检测与安全审查方法}{9}{subsection.2.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.4}不安全内容检测方法}{9}{subsection.2.4}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {2.4.1}内容安全审查的任务目标}{9}{subsubsection.2.4.1}\protected@file@percent }
 \citation{ref17}
 \citation{ref18}
@@ -70,7 +70,7 @@
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.1}图像与视频输入}{13}{subsubsection.3.2.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.2}虚假内容检测}{13}{subsubsection.3.2.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.3}不安全内容审核}{14}{subsubsection.3.2.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.4}内容生成、展示与管理}{15}{subsubsection.3.2.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.4}内容生成、送检与管理}{15}{subsubsection.3.2.4}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.3}非功能需求分析}{15}{subsection.3.3}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {3.3.1}可扩展性需求}{15}{subsubsection.3.3.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {3.3.2}可维护性需求}{16}{subsubsection.3.3.2}\protected@file@percent }
@@ -78,105 +78,116 @@
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {3.3.4}安全性与可部署性}{16}{subsubsection.3.3.4}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.4}系统总体架构设计}{17}{subsection.3.4}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {3.4.1}总体架构设计思路}{17}{subsubsection.3.4.1}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {3.1}{\ignorespaces AIGC安全分析平台总体架构}}{17}{figure.caption.5}\protected@file@percent }
-\newlabel{fig:system-architecture}{{3.1}{17}{AIGC安全分析平台总体架构}{figure.caption.5}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.1}{\ignorespaces AIGC安全分析平台总体架构}}{18}{figure.caption.5}\protected@file@percent }
+\newlabel{fig:system-architecture}{{3.1}{18}{AIGC安全分析平台总体架构}{figure.caption.5}{}}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {3.4.2}前端展示层设计}{18}{subsubsection.3.4.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {3.4.3}后端代理层设计}{18}{subsubsection.3.4.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.4.4}模型推理与外部能力层设计}{18}{subsubsection.3.4.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.4.4}模型推理与外部能力层设计}{19}{subsubsection.3.4.4}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.5}系统核心业务流程设计}{19}{subsection.3.5}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {3.5.1}内容检测流程设计}{19}{subsubsection.3.5.1}\protected@file@percent }
 \@writefile{lof}{\contentsline {figure}{\numberline {3.2}{\ignorespaces 内容安全检测业务流程}}{19}{figure.caption.6}\protected@file@percent }
 \newlabel{fig:detection-flow}{{3.2}{19}{内容安全检测业务流程}{figure.caption.6}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.5.2}生成与闭环验证流程设计}{19}{subsubsection.3.5.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.5.2}生成与闭环验证流程设计}{20}{subsubsection.3.5.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3.3}{\ignorespaces 生成样本入库与一键送检闭环流程}}{20}{figure.caption.7}\protected@file@percent }
+\newlabel{fig:generate-detect-loop}{{3.3}{20}{生成样本入库与一键送检闭环流程}{figure.caption.7}{}}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {3.5.3}结果管理与追踪流程设计}{20}{subsubsection.3.5.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.6}模块划分与接口关系设计}{20}{subsection.3.6}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.6.1}功能模块划分}{20}{subsubsection.3.6.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.6.2}统一输入输出设计}{20}{subsubsection.3.6.2}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {3-1}{\ignorespaces 检测结果统一字段设计}}{21}{table.caption.7}\protected@file@percent }
-\newlabel{tab:unified-result-schema}{{3-1}{21}{检测结果统一字段设计}{table.caption.7}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.6.3}模块间协同关系}{21}{subsubsection.3.6.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.7}本章小结}{22}{subsection.3.7}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {4}关键模块与平台实现}{23}{section.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}平台入口与功能组织实现}{23}{subsection.4.1}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {4.1}{\ignorespaces 平台首页与整体功能模块}}{23}{figure.caption.8}\protected@file@percent }
-\newlabel{fig:platform-home}{{4.1}{23}{平台首页与整体功能模块}{figure.caption.8}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}内容生成模块实现}{24}{subsection.4.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.1}Deepfake生成能力实现}{24}{subsubsection.4.2.1}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {4.2}{\ignorespaces Deepfake生成模块界面占位}}{24}{figure.caption.9}\protected@file@percent }
-\newlabel{fig:deepfake-generation-placeholder}{{4.2}{24}{Deepfake生成模块界面占位}{figure.caption.9}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.2}通用图像与视频生成实现}{24}{subsubsection.4.2.2}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {4.3}{\ignorespaces 文生图生成结果展示界面}}{25}{figure.caption.10}\protected@file@percent }
-\newlabel{fig:text-to-image-result}{{4.3}{25}{文生图生成结果展示界面}{figure.caption.10}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4.4}{\ignorespaces 图生视频生成模块界面占位}}{26}{figure.caption.11}\protected@file@percent }
-\newlabel{fig:i2v-generation-placeholder}{{4.4}{26}{图生视频生成模块界面占位}{figure.caption.11}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}多源能力接入与结果标准化实现}{26}{subsection.4.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.3.1}统一能力组织思路}{26}{subsubsection.4.3.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.3.2}输入参数与结果结构标准化}{26}{subsubsection.4.3.2}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {4.5}{\ignorespaces 多源检测结果标准化处理流程}}{27}{figure.caption.12}\protected@file@percent }
-\newlabel{fig:result-normalize-flow}{{4.5}{27}{多源检测结果标准化处理流程}{figure.caption.12}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}虚假内容检测模块实现}{27}{subsection.4.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.4.1}图像虚假检测实现}{27}{subsubsection.4.4.1}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {4.6}{\ignorespaces 虚假内容检测模块界面}}{28}{figure.caption.13}\protected@file@percent }
-\newlabel{fig:fake-detect-page}{{4.6}{28}{虚假内容检测模块界面}{figure.caption.13}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.4.2}视频虚假检测实现}{28}{subsubsection.4.4.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}不安全内容审核模块实现}{28}{subsection.4.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.5.1}图像与视频审核链路实现}{28}{subsubsection.4.5.1}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {4.7}{\ignorespaces 不安全内容审核模块界面占位}}{29}{figure.caption.14}\protected@file@percent }
-\newlabel{fig:unsafe-detect-placeholder}{{4.7}{29}{不安全内容审核模块界面占位}{figure.caption.14}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.5.2}风险等级映射实现}{29}{subsubsection.4.5.2}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {4-1}{\ignorespaces 安全审核结果风险映射}}{29}{table.caption.15}\protected@file@percent }
-\newlabel{tab:risk-mapping}{{4-1}{29}{安全审核结果风险映射}{table.caption.15}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.6}结果展示与数据管理模块实现}{29}{subsection.4.6}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {4.8}{\ignorespaces 数据管理与结果回看界面}}{30}{figure.caption.16}\protected@file@percent }
-\newlabel{fig:data-output-page}{{4.8}{30}{数据管理与结果回看界面}{figure.caption.16}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.7}前后端平台开发与部署实现}{30}{subsection.4.7}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.7.1}前端页面职责}{30}{subsubsection.4.7.1}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {4-2}{\ignorespaces 前端页面模块与职责}}{31}{table.caption.17}\protected@file@percent }
-\newlabel{tab:frontend-pages}{{4-2}{31}{前端页面模块与职责}{table.caption.17}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.7.2}后端代理与任务调度}{31}{subsubsection.4.7.2}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {4.9}{\ignorespaces 后端代理层任务调度与结果归一化流程}}{32}{figure.caption.18}\protected@file@percent }
-\newlabel{fig:backend-dispatch-flow}{{4.9}{32}{后端代理层任务调度与结果归一化流程}{figure.caption.18}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.7.3}模型服务部署实现}{32}{subsubsection.4.7.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.8}本章小结}{32}{subsection.4.8}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {5}实验设计与结果分析}{33}{section.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}实验目标与取舍原则}{33}{subsection.5.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}实验环境与评价指标}{33}{subsection.5.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.2.1}实验环境}{33}{subsubsection.5.2.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.2.2}评价指标}{33}{subsubsection.5.2.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}数据集与测试样本构建}{34}{subsection.5.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.3.1}图像真假检测样本}{34}{subsubsection.5.3.1}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {5-1}{\ignorespaces 当前阶段图像真假检测样本构成}}{34}{table.caption.19}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.3.2}生成样本与安全审核样本}{34}{subsubsection.5.3.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}图像检测与审核实验分析}{35}{subsection.5.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.4.1}图像虚假检测基线验证}{35}{subsubsection.5.4.1}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {5-2}{\ignorespaces UniversalFakeDetect在ProGAN mini子集上的链路回归结果}}{35}{table.caption.20}\protected@file@percent }
-\newlabel{tab:ufd-progan-mini-result}{{5-2}{35}{UniversalFakeDetect在ProGAN mini子集上的链路回归结果}{table.caption.20}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5.1}{\ignorespaces 图像虚假内容检测结果展示}}{36}{figure.caption.21}\protected@file@percent }
-\newlabel{fig:fake-detect-result-case}{{5.1}{36}{图像虚假内容检测结果展示}{figure.caption.21}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.4.2}图像安全审核验证}{36}{subsubsection.5.4.2}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {5-3}{\ignorespaces 图像安全审核功能验证内容}}{36}{table.caption.22}\protected@file@percent }
-\newlabel{tab:image-safety-validation}{{5-3}{36}{图像安全审核功能验证内容}{table.caption.22}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5.2}{\ignorespaces 图像安全审核结果展示占位}}{37}{figure.caption.23}\protected@file@percent }
-\newlabel{fig:image-safety-case-placeholder}{{5.2}{37}{图像安全审核结果展示占位}{figure.caption.23}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.5}视频检测与安全审核验证}{37}{subsection.5.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.5.1}视频真假检测验证}{37}{subsubsection.5.5.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.5.2}视频安全审核验证}{37}{subsubsection.5.5.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.5.3}功能验证结果讨论}{37}{subsubsection.5.5.3}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {5-4}{\ignorespaces 视频检测与安全审核功能验证内容}}{38}{table.caption.24}\protected@file@percent }
-\newlabel{tab:video-safety-validation}{{5-4}{38}{视频检测与安全审核功能验证内容}{table.caption.24}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5.3}{\ignorespaces 视频检测与审核结果展示占位}}{38}{figure.caption.25}\protected@file@percent }
-\newlabel{fig:video-validation-placeholder}{{5.3}{38}{视频检测与审核结果展示占位}{figure.caption.25}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.6}系统响应特征与可用性分析}{38}{subsection.5.6}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.6.1}响应特征分析}{38}{subsubsection.5.6.1}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {5-5}{\ignorespaces 不同任务的响应组织方式}}{39}{table.caption.26}\protected@file@percent }
-\newlabel{tab:response-mode}{{5-5}{39}{不同任务的响应组织方式}{table.caption.26}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.6.2}平台可用性分析}{39}{subsubsection.5.6.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.7}实验结果综合分析}{39}{subsection.5.7}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.8}本章小结}{39}{subsection.5.8}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {6}总结与展望}{40}{section.6}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}全文工作总结}{40}{subsection.6.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}存在的不足}{40}{subsection.6.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.3}后续研究展望}{41}{subsection.6.3}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {3-1}{\ignorespaces 内容管理核心对象设计}}{21}{table.caption.8}\protected@file@percent }
+\newlabel{tab:content-management-objects}{{3-1}{21}{内容管理核心对象设计}{table.caption.8}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.6}模块划分与接口关系设计}{21}{subsection.3.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.6.1}功能模块划分}{21}{subsubsection.3.6.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.6.2}统一输入输出设计}{21}{subsubsection.3.6.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {3-2}{\ignorespaces 检测结果统一字段设计}}{22}{table.caption.9}\protected@file@percent }
+\newlabel{tab:unified-result-schema}{{3-2}{22}{检测结果统一字段设计}{table.caption.9}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.6.3}模块间协同关系}{22}{subsubsection.3.6.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.7}本章小结}{23}{subsection.3.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4}关键模块与平台实现}{24}{section.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}平台入口与功能组织实现}{24}{subsection.4.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4.1}{\ignorespaces 平台首页与整体功能模块}}{24}{figure.caption.10}\protected@file@percent }
+\newlabel{fig:platform-home}{{4.1}{24}{平台首页与整体功能模块}{figure.caption.10}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}内容生成模块实现}{25}{subsection.4.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.1}Deepfake生成能力实现}{25}{subsubsection.4.2.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4.2}{\ignorespaces Deepfake生成模块界面占位}}{25}{figure.caption.11}\protected@file@percent }
+\newlabel{fig:deepfake-generation-placeholder}{{4.2}{25}{Deepfake生成模块界面占位}{figure.caption.11}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.2}通用图像与视频生成实现}{25}{subsubsection.4.2.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4.3}{\ignorespaces 文生图生成结果展示界面}}{26}{figure.caption.12}\protected@file@percent }
+\newlabel{fig:text-to-image-result}{{4.3}{26}{文生图生成结果展示界面}{figure.caption.12}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4.4}{\ignorespaces 图生视频生成模块界面占位}}{27}{figure.caption.13}\protected@file@percent }
+\newlabel{fig:i2v-generation-placeholder}{{4.4}{27}{图生视频生成模块界面占位}{figure.caption.13}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}多源能力接入与结果标准化实现}{27}{subsection.4.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.3.1}统一能力组织思路}{27}{subsubsection.4.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.3.2}输入参数与结果结构标准化}{28}{subsubsection.4.3.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4.5}{\ignorespaces 多源检测结果标准化处理流程}}{28}{figure.caption.14}\protected@file@percent }
+\newlabel{fig:result-normalize-flow}{{4.5}{28}{多源检测结果标准化处理流程}{figure.caption.14}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}虚假内容检测模块实现}{28}{subsection.4.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.4.1}图像虚假检测实现}{28}{subsubsection.4.4.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4.6}{\ignorespaces 虚假内容检测模块界面}}{29}{figure.caption.15}\protected@file@percent }
+\newlabel{fig:fake-detect-page}{{4.6}{29}{虚假内容检测模块界面}{figure.caption.15}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.4.2}视频虚假检测实现}{29}{subsubsection.4.4.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}不安全内容审核模块实现}{30}{subsection.4.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.5.1}图像与视频审核链路实现}{30}{subsubsection.4.5.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4.7}{\ignorespaces 不安全内容审核模块界面占位}}{30}{figure.caption.16}\protected@file@percent }
+\newlabel{fig:unsafe-detect-placeholder}{{4.7}{30}{不安全内容审核模块界面占位}{figure.caption.16}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.5.2}风险等级映射实现}{30}{subsubsection.4.5.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {4-1}{\ignorespaces 安全审核结果风险映射}}{31}{table.caption.17}\protected@file@percent }
+\newlabel{tab:risk-mapping}{{4-1}{31}{安全审核结果风险映射}{table.caption.17}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.6}结果展示与内容管理模块实现}{31}{subsection.4.6}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4.8}{\ignorespaces 样本与检测记录中心界面}}{32}{figure.caption.18}\protected@file@percent }
+\newlabel{fig:data-output-page}{{4.8}{32}{样本与检测记录中心界面}{figure.caption.18}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {4-2}{\ignorespaces 内容管理模块主要接口}}{32}{table.caption.19}\protected@file@percent }
+\newlabel{tab:content-api-list}{{4-2}{32}{内容管理模块主要接口}{table.caption.19}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4.9}{\ignorespaces 一键送检与检测记录关联实现流程}}{33}{figure.caption.20}\protected@file@percent }
+\newlabel{fig:one-click-detect-implementation}{{4.9}{33}{一键送检与检测记录关联实现流程}{figure.caption.20}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.7}前后端平台开发与部署实现}{33}{subsection.4.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.7.1}前端页面职责}{33}{subsubsection.4.7.1}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {4-3}{\ignorespaces 前端页面模块与职责}}{33}{table.caption.21}\protected@file@percent }
+\newlabel{tab:frontend-pages}{{4-3}{33}{前端页面模块与职责}{table.caption.21}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.7.2}后端代理与任务调度}{34}{subsubsection.4.7.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4.10}{\ignorespaces 后端代理层任务调度与结果归一化流程}}{34}{figure.caption.22}\protected@file@percent }
+\newlabel{fig:backend-dispatch-flow}{{4.10}{34}{后端代理层任务调度与结果归一化流程}{figure.caption.22}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.7.3}模型服务部署实现}{34}{subsubsection.4.7.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.8}本章小结}{35}{subsection.4.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {5}实验设计与结果分析}{36}{section.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}实验目标与取舍原则}{36}{subsection.5.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}实验环境与评价指标}{36}{subsection.5.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.2.1}实验环境}{36}{subsubsection.5.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.2.2}评价指标}{36}{subsubsection.5.2.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}数据集与测试样本构建}{37}{subsection.5.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.3.1}图像真假检测样本}{37}{subsubsection.5.3.1}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {5-1}{\ignorespaces 当前阶段图像真假检测样本构成}}{37}{table.caption.23}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.3.2}生成样本与安全审核样本}{37}{subsubsection.5.3.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}图像检测与审核实验分析}{38}{subsection.5.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.4.1}图像虚假检测基线验证}{38}{subsubsection.5.4.1}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {5-2}{\ignorespaces UniversalFakeDetect在ProGAN mini子集上的链路回归结果}}{38}{table.caption.24}\protected@file@percent }
+\newlabel{tab:ufd-progan-mini-result}{{5-2}{38}{UniversalFakeDetect在ProGAN mini子集上的链路回归结果}{table.caption.24}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.1}{\ignorespaces 图像虚假内容检测结果展示}}{39}{figure.caption.25}\protected@file@percent }
+\newlabel{fig:fake-detect-result-case}{{5.1}{39}{图像虚假内容检测结果展示}{figure.caption.25}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.4.2}图像安全审核验证}{39}{subsubsection.5.4.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {5-3}{\ignorespaces 图像安全审核功能验证内容}}{39}{table.caption.26}\protected@file@percent }
+\newlabel{tab:image-safety-validation}{{5-3}{39}{图像安全审核功能验证内容}{table.caption.26}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.2}{\ignorespaces 图像安全审核结果展示占位}}{40}{figure.caption.27}\protected@file@percent }
+\newlabel{fig:image-safety-case-placeholder}{{5.2}{40}{图像安全审核结果展示占位}{figure.caption.27}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.5}视频检测与安全审核验证}{40}{subsection.5.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.5.1}视频真假检测验证}{40}{subsubsection.5.5.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.5.2}视频安全审核验证}{40}{subsubsection.5.5.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.5.3}功能验证结果讨论}{40}{subsubsection.5.5.3}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {5-4}{\ignorespaces 视频检测与安全审核功能验证内容}}{41}{table.caption.28}\protected@file@percent }
+\newlabel{tab:video-safety-validation}{{5-4}{41}{视频检测与安全审核功能验证内容}{table.caption.28}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.3}{\ignorespaces 视频检测与审核结果展示占位}}{41}{figure.caption.29}\protected@file@percent }
+\newlabel{fig:video-validation-placeholder}{{5.3}{41}{视频检测与审核结果展示占位}{figure.caption.29}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.6}闭环流程与平台可用性分析}{41}{subsection.5.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.6.1}生成样本回检与内容管理验证}{41}{subsubsection.5.6.1}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {5-5}{\ignorespaces 生成样本回检与内容管理验证内容}}{42}{table.caption.30}\protected@file@percent }
+\newlabel{tab:content-loop-validation}{{5-5}{42}{生成样本回检与内容管理验证内容}{table.caption.30}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.6.2}响应特征分析}{42}{subsubsection.5.6.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {5-6}{\ignorespaces 不同任务的响应组织方式}}{42}{table.caption.31}\protected@file@percent }
+\newlabel{tab:response-mode}{{5-6}{42}{不同任务的响应组织方式}{table.caption.31}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.6.3}平台可用性分析}{42}{subsubsection.5.6.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.7}实验结果综合分析}{43}{subsection.5.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.8}本章小结}{43}{subsection.5.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {6}总结与展望}{44}{section.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}全文工作总结}{44}{subsection.6.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}存在的不足}{44}{subsection.6.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.3}后续研究展望}{45}{subsection.6.3}\protected@file@percent }
 \bibcite{ref1}{{1}{}{{}}{{}}}
 \bibcite{ref2}{{2}{}{{}}{{}}}
 \bibcite{ref3}{{3}{}{{}}{{}}}
@@ -192,7 +203,7 @@
 \bibcite{ref13}{{13}{}{{}}{{}}}
 \bibcite{ref14}{{14}{}{{}}{{}}}
 \bibcite{ref15}{{15}{}{{}}{{}}}
-\@writefile{toc}{\contentsline {section}{参考文献}{42}{section*.27}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{参考文献}{46}{section*.32}\protected@file@percent }
 \bibcite{ref16}{{16}{}{{}}{{}}}
 \bibcite{ref17}{{17}{}{{}}{{}}}
 \bibcite{ref18}{{18}{}{{}}{{}}}
@@ -200,11 +211,11 @@
 \bibcite{ref20}{{20}{}{{}}{{}}}
 \bibcite{ref21}{{21}{}{{}}{{}}}
 \bibcite{ref22}{{22}{}{{}}{{}}}
-\@writefile{toc}{\contentsline {section}{致谢}{44}{section*.29}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{附录}{45}{section*.31}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{附录A 补充代码与接口说明}{45}{section*.33}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {6-1}{\ignorespaces 后端代理服务主要接口}}{46}{table.caption.34}\protected@file@percent }
-\newlabel{tab:appendix-api-list}{{6-1}{46}{后端代理服务主要接口}{table.caption.34}{}}
+\@writefile{toc}{\contentsline {section}{致谢}{48}{section*.34}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{附录}{49}{section*.36}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{附录A 补充代码与接口说明}{49}{section*.38}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {6-1}{\ignorespaces 后端代理服务主要接口}}{50}{table.caption.39}\protected@file@percent }
+\newlabel{tab:appendix-api-list}{{6-1}{50}{后端代理服务主要接口}{table.caption.39}{}}
 \providecommand\NAT@force@numbers{}\NAT@force@numbers
-\@writefile{toc}{\contentsline {subsection}{附录B 运行与复现实验说明}{47}{section*.36}\protected@file@percent }
-\gdef \@abspage@last{52}
+\@writefile{toc}{\contentsline {subsection}{附录B 运行与复现实验说明}{51}{section*.41}\protected@file@percent }
+\gdef \@abspage@last{56}
