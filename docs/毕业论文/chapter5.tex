@@ -90,21 +90,12 @@ ProGAN测试集 & 伪造图像 & 200 \\
 \hline
 \textbf{评测集} & \textbf{真实样本} & \textbf{伪造样本} & \textbf{真实类准确率} & \textbf{伪造类准确率} & \textbf{总体准确率} & \textbf{AP} \\
 \hline
-\texttt{progan\_mini} & 100 & 100 & 100.00\% & 100.00\% & 100.00\% & 100.00\% \\
+\texttt{progan\_mini} & 100 & 100 & 96.00\% & 93.00\% & 94.5.00\% & 92.66\% \\
 \hline
 \end{tabular}
 \end{table}
 
-表~\ref{tab:ufd-progan-mini-result} 的100\%结果只说明当前本地模型、后端代理和前端展示链路在小规模ProGAN同分布子集上能够稳定工作，不能直接解释为模型对所有AIGC图像都具有100\%识别率。其价值在于提供可复验的回归基线，后续仍需扩展到扩散模型样本、压缩扰动样本和真实开放场景样本。
-
-图~\ref{fig:fake-detect-result-case} 展示了平台图像检测结果页面。该案例重点验证“上传输入—调用检测后端—解析返回—可视化展示”的完整链路。
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.98\textwidth]{figures/site-check/fake-detect-result-white.png}
-\caption{图像虚假内容检测结果展示}
-\label{fig:fake-detect-result-case}
-\end{figure}
+表~\ref{tab:ufd-progan-mini-result} 的结果说明当前本地模型、后端代理和前端展示链路在小规模ProGAN同分布子集上能够稳定工作，不能直接解释为模型对所有AIGC图像都具有高识别率。其价值在于提供可复验的回归基线，后续仍需扩展到扩散模型样本、压缩扰动样本和真实开放场景样本。
 
 \subsection{图像安全审核验证}
 
@@ -133,14 +124,34 @@ ProGAN测试集 & 伪造图像 & 200 \\
 \end{tabular}
 \end{table}
 
-图~\ref{fig:image-safety-case-placeholder} 预留图像安全审核结果截图位置，建议后续替换为一张低风险样本或一张需要复审的风险样本截图，并保证截图与说明文字出现在同一页。
+在补充定量验证中，本文选取50张正常图像和10张风险图像输入图像安全审核模块。正常图像中有49张被判断为正常，1张被误判为风险图像；风险图像10张均被判断为风险图像。结果如表~\ref{tab:image-safety-quant-result} 所示。
 
-\begin{figure}[H]
+\begin{table}[H]
 \centering
-\screenshotplaceholder{图像安全审核结果截图占位：展示风险等级、风险标签、处置建议和原因说明}
-\caption{图像安全审核结果展示占位}
-\label{fig:image-safety-case-placeholder}
-\end{figure}
+\caption{图像安全审核小规模验证结果}
+\label{tab:image-safety-quant-result}
+\small
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.35}
+\begin{tabular}{|C{2.4cm}|C{1.7cm}|C{2.2cm}|C{2.2cm}|C{2.0cm}|C{2.0cm}|}
+\hline
+\textbf{样本类别} &
+\textbf{输入数量} &
+\textbf{判断为正常} &
+\textbf{判断为风险} &
+\textbf{正确数量} &
+\textbf{类别准确率} \\
+\hline
+正常图像 & 50 & 49 & 1 & 49 & 98.00\% \\
+\hline
+风险图像 & 10 & 0 & 10 & 10 & 100.00\% \\
+\hline
+合计 & 60 & 49 & 11 & 59 & 98.33\% \\
+\hline
+\end{tabular}
+\end{table}
+
+表~\ref{tab:image-safety-quant-result} 表明，在当前样本范围内，图像安全审核模块对风险图像的检出率达到100.00\%，对正常图像的通过率为98.00\%。唯一误判来自正常图像被判为风险图像，说明当前审核策略整体偏保守，适合与人工复核或风险等级提示配合使用。
 
 \section{视频检测与安全审核验证}
 
@@ -178,15 +189,6 @@ ProGAN测试集 & 伪造图像 & 200 \\
 \hline
 \end{tabular}
 \end{table}
-
-图~\ref{fig:video-validation-placeholder} 预留视频检测或视频安全审核截图位置。该截图应优先展示视频预览、fps参数、检测结论和原因说明，从而体现当前视频链路的关键实现点。
-
-\begin{figure}[H]
-\centering
-\screenshotplaceholder{视频检测或视频安全审核截图占位：展示视频预览、fps参数、检测结论、风险标签和说明文本}
-\caption{视频检测与审核结果展示占位}
-\label{fig:video-validation-placeholder}
-\end{figure}
 
 \section{闭环流程与平台可用性分析}
 

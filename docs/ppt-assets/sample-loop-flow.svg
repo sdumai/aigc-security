@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="900" viewBox="0 0 1800 900">
+  <defs>
+    <style>
+      .title { font-family: "Hiragino Sans GB", "Heiti SC", "Arial Unicode MS", sans-serif; font-size: 34px; font-weight: 700; fill: #1f2937; }
+      .sub { font-family: "Hiragino Sans GB", "Heiti SC", "Arial Unicode MS", sans-serif; font-size: 25px; font-weight: 500; fill: #4b5563; }
+      .label { font-family: "Hiragino Sans GB", "Heiti SC", "Arial Unicode MS", sans-serif; font-size: 22px; font-weight: 500; fill: #6b7280; }
+      .small { font-family: "Hiragino Sans GB", "Heiti SC", "Arial Unicode MS", sans-serif; font-size: 20px; font-weight: 500; fill: #64748b; }
+      .node { stroke: #111827; stroke-width: 3; rx: 12; ry: 12; }
+      .lavender { fill: #f3f4ff; }
+      .green { fill: #effaf0; }
+      .chip { fill: #ffffff; stroke: #cbd5e1; stroke-width: 2; rx: 14; ry: 14; }
+      .arrow { fill: none; stroke: #111827; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrowHead); }
+      .softArrow { fill: none; stroke: #334155; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrowHeadSoft); }
+    </style>
+    <marker id="arrowHead" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M 0 0 L 12 6 L 0 12 z" fill="#111827"/>
+    </marker>
+    <marker id="arrowHeadSoft" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M 0 0 L 12 6 L 0 12 z" fill="#334155"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1800" height="900" fill="#ffffff"/>
+
+  <!-- main nodes -->
+  <g transform="translate(70 150)">
+    <rect class="node lavender" x="0" y="0" width="250" height="112"/>
+    <text class="title" x="125" y="43" text-anchor="middle">生成模块</text>
+    <text class="sub" x="125" y="83" text-anchor="middle">产出图像/视频</text>
+  </g>
+
+  <g transform="translate(390 150)">
+    <rect class="node green" x="0" y="0" width="280" height="112"/>
+    <text class="title" x="140" y="43" text-anchor="middle">生成样本入库</text>
+    <text class="sub" x="140" y="83" text-anchor="middle">保存媒体与元数据</text>
+  </g>
+
+  <g transform="translate(745 150)">
+    <rect class="node lavender" x="0" y="0" width="250" height="112"/>
+    <text class="title" x="125" y="43" text-anchor="middle">一键送检</text>
+    <text class="sub" x="125" y="83" text-anchor="middle">选择检测目标</text>
+  </g>
+
+  <g transform="translate(1070 150)">
+    <rect class="node lavender" x="0" y="0" width="270" height="112"/>
+    <text class="title" x="135" y="43" text-anchor="middle">检测/审核页面</text>
+    <text class="sub" x="135" y="83" text-anchor="middle">自动填充输入</text>
+  </g>
+
+  <g transform="translate(1420 150)">
+    <rect class="node green" x="0" y="0" width="300" height="112"/>
+    <text class="title" x="150" y="43" text-anchor="middle">检测记录入库</text>
+    <text class="sub" x="150" y="83" text-anchor="middle">更新样本状态</text>
+  </g>
+
+  <g transform="translate(1430 480)">
+    <rect class="node lavender" x="0" y="0" width="290" height="118"/>
+    <text class="title" x="145" y="45" text-anchor="middle">内容管理中心</text>
+    <text class="sub" x="145" y="88" text-anchor="middle">回看样本与历史</text>
+  </g>
+
+  <!-- main arrows -->
+  <path class="arrow" d="M 320 206 L 380 206"/>
+  <path class="arrow" d="M 670 206 L 735 206"/>
+  <path class="arrow" d="M 995 206 L 1060 206"/>
+  <path class="arrow" d="M 1340 206 L 1410 206"/>
+  <path class="arrow" d="M 1570 262 L 1570 470"/>
+
+  <!-- curved shortcut from sample library to content center -->
+  <path class="softArrow" d="M 530 262 C 560 430, 900 548, 1418 540"/>
+
+  <!-- connector labels -->
+  <rect class="chip" x="683" y="296" width="326" height="44"/>
+  <text class="small" x="846" y="325" text-anchor="middle">sampleId / url / mediaType</text>
+
+  <rect class="chip" x="1116" y="296" width="395" height="44"/>
+  <text class="small" x="1313" y="325" text-anchor="middle">result / score / labels / rawResult</text>
+
+  <rect class="chip" x="1514" y="380" width="260" height="44"/>
+  <text class="small" x="1644" y="409" text-anchor="middle">回写 latestDetection</text>
+
+  <rect class="chip" x="824" y="594" width="286" height="44"/>
+  <text class="small" x="967" y="623" text-anchor="middle">已入库样本可直接回看</text>
+
+  <!-- data persistence annotations -->
+  <g transform="translate(404 372)">
+    <rect class="chip" x="0" y="0" width="252" height="46"/>
+    <text class="label" x="126" y="31" text-anchor="middle">generated-samples.json</text>
+  </g>
+
+  <g transform="translate(1218 372)">
+    <rect class="chip" x="0" y="0" width="282" height="46"/>
+    <text class="label" x="141" y="31" text-anchor="middle">detection-records.json</text>
+  </g>
+
+  <path d="M 662 395 L 1210 395" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="8 8"/>
+  <rect class="chip" x="833" y="373" width="210" height="44"/>
+  <text class="small" x="938" y="402" text-anchor="middle">sampleId 关联</text>
+</svg>

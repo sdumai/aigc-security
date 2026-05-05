@@ -4,9 +4,9 @@
 
 第三章从需求和总体架构层面对平台进行了设计，明确了前端展示层、后端代理层、模型推理与外部能力层之间的职责边界。本章按照当前平台的实际业务顺序展开：先说明平台入口与内容生成能力，再说明检测、审核、内容管理和部署实现。这样的组织方式能够对应“生成样本—保存入库—一键送检—检测分析—结果回看”的主流程，也避免把系统实现写成零散接口调用记录。
 
-\section{平台入口与功能组织实现}
+\section{平台入口与功能组织}
 
-平台前端采用React、TypeScript、Vite和Ant Design实现，围绕首页、Deepfake生成、通用生成、虚假检测、不安全检测和内容管理六个页面组织功能。首页主要承担功能入口和任务分流作用，用户可从统一导航进入生成、检测、审核或内容管理流程。图~\ref{fig:platform-home} 展示了平台首页与整体功能入口，该图放在实现章节中，用于说明页面功能已经落地到可交互界面，而不是停留在总体设计层面的模块划分。
+平台前端采用React、TypeScript、Vite和Ant Design实现，围绕首页、Deepfake生成、通用生成、虚假检测、不安全检测和内容管理六个页面组织功能。首页主要承担功能入口和任务分流作用，用户可从统一导航进入生成、检测、审核或内容管理流程。图~\ref{fig:platform-home} 展示了平台首页与整体功能入口。
 
 \begin{figure}[H]
 \centering
@@ -17,48 +17,7 @@
 
 从页面组织角度看，平台将生成与检测拆分为独立页面，但在数据结构上保持联动。生成模块用于构造图像、视频和Deepfake样本；检测模块用于判断真实性与内容安全风险；内容管理模块用于保存生成样本、追踪检测记录、回看样本状态并支持再次送检。这种结构使平台既能用于系统演示，也能用于论文中的样本构建和功能验证。
 
-\section{内容生成模块实现}
-
-\subsection{Deepfake生成能力实现}
-
-Deepfake生成页主要覆盖人脸替换、人脸动画和属性编辑三类任务。人脸替换任务采用双图输入，源人脸图负责提供身份特征，目标模板图负责提供场景和姿态；后端根据具体模型版本将图片转换为外部接口所需的Base64字段，并完成签名鉴权、参数映射和结果提取。属性编辑任务则以原始人脸图和文本编辑指令为输入，用于验证“图像内容 + 文本指令”的联合编辑能力。人脸动画任务以首帧人脸图和动作描述为输入，输出短视频结果，主要服务于数字人驱动和伪造样本构造。
-
-该模块的实现重点不是单纯生成效果展示，而是把Deepfake相关生成能力纳入统一平台。后端代理层屏蔽不同外部接口的鉴权方式和返回格式，前端只需要围绕源图、目标图、提示词和结果预览构建交互。图~\ref{fig:deepfake-generation-placeholder} 预留Deepfake生成页截图位置，用于放置人脸替换、属性编辑或人脸动画的实际运行界面。
-
-\begin{figure}[H]
-\centering
-\screenshotplaceholder{Deepfake生成页截图占位：展示人脸替换、属性编辑或人脸动画输入区与生成结果区}
-\caption{Deepfake生成模块界面占位}
-\label{fig:deepfake-generation-placeholder}
-\end{figure}
-
-\subsection{通用图像与视频生成实现}
-
-通用生成页覆盖文生图、文生视频和图生视频三类任务。文生图既支持外部图像生成接口，也保留本地Stable Diffusion服务作为开源模型入口；文生视频既支持外部Seedance系列模型，也支持本地ModelScope Text-to-Video服务；图生视频则支持参考图驱动、首帧驱动和首尾帧控制三种模式。这样处理的目的，是让平台能够覆盖图像生成、视频生成和跨模态生成三类样本来源。
-
-结合当前实现，通用生成模块的重点增强主要体现在三方面。第一，图像生成模型扩展为Seedream 5.0、Seedream 4.5和本地Stable Diffusion，后端通过模型映射表选择实际接入点。第二，文生视频和图生视频扩展为Seedance 1.5 Pro、Seedance 2.0 Fast和Lite等不同能力，支持分辨率、比例、时长、随机种子、音频和水印等参数。第三，图生视频上传组件由单图上传扩展为多图槽位上传，可按顺序读取参考图，并根据模式映射为 \texttt{reference\_image}、\texttt{first\_frame} 和 \texttt{last\_frame} 等角色字段。
-
-图~\ref{fig:text-to-image-result} 展示了平台文生图模块的运行界面。该截图对应“输入提示词—选择生成模型—返回媒体结果”的典型流程，用于说明生成能力已经通过前后端链路封装为可交互功能。
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.98\textwidth]{figures/system/text-to-image-result-white.png}
-\caption{文生图生成结果展示界面}
-\label{fig:text-to-image-result}
-\end{figure}
-
-图~\ref{fig:i2v-generation-placeholder} 预留图生视频模块截图位置。该图建议展示多图上传槽位、生成模式选择、参数设置和视频结果区，用于突出“多参考图 + 异步生成”的实现特点。
-
-\begin{figure}[H]
-\centering
-\screenshotplaceholder{图生视频生成页截图占位：展示参考图槽位、生成模式、Seedance模型参数和视频结果}
-\caption{图生视频生成模块界面占位}
-\label{fig:i2v-generation-placeholder}
-\end{figure}
-
-为了让生成结果能够直接进入后续实验流程，当前平台在生成结果卡片中统一提供下载、保存到内容管理、重新生成和一键送检入口。生成结果出现后，前端首先根据任务类型提取图像或视频地址，再保存生成模型、提示词、来源模块和媒体类型等信息；当用户选择“一键送到检测模块”时，系统会在未保存样本的情况下先自动入库，并把样本编号随路由状态传递给检测页。这样实现后，文生图、文生视频、图生视频和Deepfake生成结果都可以复用同一套样本入库与送检逻辑，而不需要在每个生成页面重复编写检测输入转换代码。
-
-\section{多源能力接入与结果标准化实现}
+\section{多源能力接入与标准化}
 
 \subsection{统一能力组织思路}
 
@@ -107,6 +66,39 @@ Deepfake生成页主要覆盖人脸替换、人脸动画和属性编辑三类任
 \label{fig:result-normalize-flow}
 \end{figure}
 
+
+\section{内容生成模块实现}
+
+\subsection{Deepfake生成能力实现}
+
+Deepfake生成页主要覆盖人脸替换、人脸动画和属性编辑三类任务。人脸替换任务采用双图输入，源人脸图负责提供身份特征，目标模板图负责提供场景和姿态；后端根据具体模型版本将图片转换为外部接口所需的Base64字段，并完成签名鉴权、参数映射和结果提取。属性编辑任务则以原始人脸图和文本编辑指令为输入，用于验证“图像内容 + 文本指令”的联合编辑能力。人脸动画任务以首帧人脸图和动作描述为输入，输出短视频结果，主要服务于数字人驱动和伪造样本构造。
+
+该模块的实现重点不是单纯生成效果展示，而是把Deepfake相关生成能力纳入统一平台。后端代理层屏蔽不同外部接口的鉴权方式和返回格式，前端只需要围绕源图、目标图、提示词和结果预览构建交互。图~\ref{fig:deepfake-generation} 展示了Deepfake生成页的实际运行界面，用于说明人脸替换、属性编辑或人脸动画能力在平台中的交互组织方式。
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.98\textwidth]{figures/system/deepfake.png}
+\caption{Deepfake生成模块界面}
+\label{fig:deepfake-generation}
+\end{figure}
+
+\subsection{通用图像与视频生成实现}
+
+通用生成页覆盖文生图、文生视频和图生视频三类任务。文生图既支持外部图像生成接口，也保留本地Stable Diffusion服务作为开源模型入口；文生视频既支持外部Seedance系列模型，也支持本地ModelScope Text-to-Video服务；图生视频则支持参考图驱动、首帧驱动和首尾帧控制三种模式。这样处理的目的，是让平台能够覆盖图像生成、视频生成和跨模态生成三类样本来源。
+
+结合当前实现，通用生成模块的重点增强主要体现在三方面。第一，图像生成模型扩展为Seedream 5.0、Seedream 4.5和本地Stable Diffusion，后端通过模型映射表选择实际接入点。第二，文生视频和图生视频扩展为Seedance 1.5 Pro、Seedance 2.0 Fast和Lite等不同能力，支持分辨率、比例、时长、随机种子、音频和水印等参数。第三，图生视频上传组件由单图上传扩展为多图槽位上传，可按顺序读取参考图，并根据模式映射为 \texttt{reference\_image}、\texttt{first\_frame} 和 \texttt{last\_frame} 等角色字段。
+
+图~\ref{fig:text-to-image-result} 展示了平台文生图模块的运行界面。该截图对应“输入提示词—选择生成模型—返回媒体结果”的典型流程，用于说明生成能力已经通过前后端链路封装为可交互功能。
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.98\textwidth]{figures/system/text-to-image-result-white.png}
+\caption{文生图生成结果展示界面}
+\label{fig:text-to-image-result}
+\end{figure}
+
+为了让生成结果能够直接进入后续实验流程，当前平台在生成结果卡片中统一提供下载、保存到内容管理、重新生成和一键送检入口。生成结果出现后，前端首先根据任务类型提取图像或视频地址，再保存生成模型、提示词、来源模块和媒体类型等信息；当用户选择“一键送到检测模块”时，系统会在未保存样本的情况下先自动入库，并把样本编号随路由状态传递给检测页。这样实现后，文生图、文生视频、图生视频和Deepfake生成结果都可以复用同一套样本入库与送检逻辑，而不需要在每个生成页面重复编写检测输入转换代码。
+
 \section{虚假内容检测模块实现}
 
 \subsection{图像虚假检测实现}
@@ -136,13 +128,13 @@ Deepfake生成页主要覆盖人脸替换、人脸动画和属性编辑三类任
 
 不安全内容审核模块关注内容是否涉及暴力、色情、仇恨、赌博、敏感符号或其他违规风险。图像审核和视频审核均通过多模态视觉理解能力实现，区别主要在输入内容块和提示词约束。后端要求模型输出 \texttt{safe}、\texttt{suggestion}、\texttt{labels} 和 \texttt{reason} 等结构化字段，再将其映射为前端可展示的风险等级、标签和说明。
 
-安全审核页在实现上进行了简化和强化：页面不再暴露多个未实际接入的模型下拉选择，而是明确展示“方舟视觉安全审核”这一固定链路，减少配置项对用户的误导；图像和视频输入组件统一采用上传/URL分段控制、预览区、操作按钮和模型说明卡片；视频安全审核同样支持fps参数。图~\ref{fig:unsafe-detect-placeholder} 预留不安全内容检测页截图位置，用于放置图像或视频审核的实际结果界面。
+安全审核页在实现上进行了简化和强化：页面不再暴露多个未实际接入的模型下拉选择，而是明确展示“方舟视觉安全审核”这一固定链路，减少配置项对用户的误导；图像和视频输入组件统一采用上传/URL分段控制、预览区、操作按钮和模型说明卡片；视频安全审核同样支持fps参数。图~\ref{fig:unsafe-detect-page} 展示了不安全内容检测页的实际结果界面。
 
 \begin{figure}[H]
 \centering
-\screenshotplaceholder{不安全内容检测页截图占位：展示图片/视频输入、审核链路说明、风险等级、标签和处置建议}
-\caption{不安全内容审核模块界面占位}
-\label{fig:unsafe-detect-placeholder}
+\includegraphics[width=0.98\textwidth]{figures/system/unsafe-detect-page.png}
+\caption{不安全内容审核模块界面}
+\label{fig:unsafe-detect-page}
 \end{figure}
 
 \subsection{风险等级映射实现}
