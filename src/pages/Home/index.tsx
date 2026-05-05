@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { Card, Row, Col, Button, Typography, Space, Tag, Tooltip } from "antd";
 import { useNavigate } from "react-router-dom";
 import {
@@ -17,10 +18,26 @@ import { DScanLogoMark } from "@/components/common/DScanLogoMark";
 
 const { Title, Paragraph, Text } = Typography;
 
+interface IHomeFeature {
+  icon: ReactNode;
+  title: string;
+  description: string;
+  link: string;
+  stats: string;
+  disabled?: boolean;
+}
+
+interface IQuickAction {
+  icon: ReactNode;
+  title: string;
+  link: string;
+  disabled?: boolean;
+}
+
 const HomePage = () => {
   const navigate = useNavigate();
 
-  const coreFeatures = [
+  const coreFeatures: IHomeFeature[] = [
     {
       icon: <ThunderboltOutlined style={{ fontSize: 48, color: "#1e3a5f" }} />,
       title: "生成模块",
@@ -38,17 +55,16 @@ const HomePage = () => {
     {
       icon: <DatabaseOutlined style={{ fontSize: 48, color: "#1e3a5f" }} />,
       title: "内容与记录管理",
-      description: "集中管理生成产物与检测记录，支持按类型筛选、预览、下载及元数据导出。",
+      description: "集中管理生成产物与检测记录，支持样本预览、状态追踪、再次送检、下载和历史回看。",
       link: "/data/output",
       stats: "统一存储",
-      disabled: true,
     },
   ];
 
-  const quickActions = [
+  const quickActions: IQuickAction[] = [
     { icon: <UserOutlined />, title: "深度伪造人脸生成", link: "/generate/deepfake" },
     { icon: <SafetyOutlined />, title: "合成媒体检测", link: "/detect/fake" },
-    { icon: <DatabaseOutlined />, title: "内容与记录管理", link: "/data/output", disabled: true },
+    { icon: <DatabaseOutlined />, title: "内容与记录管理", link: "/data/output" },
   ];
 
   return (
